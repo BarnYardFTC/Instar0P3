@@ -14,7 +14,7 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-public class Drivetrain3 extends SubsystemBase {
+public class Drivetrain extends SubsystemBase {
     private final DcMotor leftFront;
     private final DcMotor rightFront;
     private final DcMotor leftBack;
@@ -28,7 +28,7 @@ public class Drivetrain3 extends SubsystemBase {
     private final double FAST_SPEED = 1.0;
     private double speedModifier;
 
-    public Drivetrain3() {
+    public Drivetrain() {
         leftFront = BarnRobot.getInstance().hardware.leftFrontDrivetrain;
         rightFront = BarnRobot.getInstance().hardware.rightFrontDrivetrain;
         leftBack = BarnRobot.getInstance().hardware.leftBackDrivetrain;
@@ -54,7 +54,7 @@ public class Drivetrain3 extends SubsystemBase {
         powers = ManualDrive.fieldCentric(
                 -BarnRobot.getInstance().gamepadEx1.getLeftY() * speedModifier,
                 BarnRobot.getInstance().gamepadEx1.getLeftX() * speedModifier,
-                -BarnRobot.getInstance().gamepadEx1.getRightX() * speedModifier * 0.7,
+                BarnRobot.getInstance().gamepadEx1.getRightX() * speedModifier * 0.7,
                 follower.pose().heading()
         );
         follower.manual(powers);

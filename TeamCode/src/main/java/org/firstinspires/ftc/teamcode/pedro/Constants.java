@@ -12,6 +12,7 @@ import com.pedropathing.revhub.localizers.PinpointConfig;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -30,10 +31,10 @@ public class Constants {
         c.frontRightName.set("rightFrontDrivetrain");
         c.backLeftName.set("leftBackDrivetrain");
         c.backRightName.set("rightBackDrivetrain");
-        c.frontLeftDirection.set(DcMotor.Direction.REVERSE);
-        c.frontRightDirection.set(DcMotor.Direction.FORWARD);
-        c.backLeftDirection.set(DcMotor.Direction.REVERSE);
-        c.backRightDirection.set(DcMotor.Direction.FORWARD);
+        c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
+        c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
+        c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
+        c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
     });
 
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
