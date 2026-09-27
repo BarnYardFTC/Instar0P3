@@ -54,7 +54,7 @@ public class Drivetrain3 extends SubsystemBase {
         powers = ManualDrive.fieldCentric(
                 -BarnRobot.getInstance().gamepadEx1.getLeftY() * speedModifier,
                 BarnRobot.getInstance().gamepadEx1.getLeftX() * speedModifier,
-                BarnRobot.getInstance().gamepadEx1.getRightX() * speedModifier * 0.7,
+                -BarnRobot.getInstance().gamepadEx1.getRightX() * speedModifier * 0.7,
                 follower.pose().heading()
         );
         follower.manual(powers);
