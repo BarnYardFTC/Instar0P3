@@ -26,6 +26,7 @@ public class Transfer extends SubsystemBase {
         guard = robot.hardware.guard;
         dock.setDirection(Servo.Direction.FORWARD);
         guard.setDirection(Servo.Direction.REVERSE);
+        setCollect();
     }
 
     private void setDockPosition(double pos){
