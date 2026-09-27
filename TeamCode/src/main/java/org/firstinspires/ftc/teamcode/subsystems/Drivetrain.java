@@ -21,7 +21,6 @@ public class Drivetrain extends SubsystemBase {
     private final DcMotor rightBack;
 
     public Follower follower;
-    private final PoseFactory poseFactory = PoseFactory.degrees();
 
     DrivePowers powers;
     private final double SLOW_SPEED = 0.3;
