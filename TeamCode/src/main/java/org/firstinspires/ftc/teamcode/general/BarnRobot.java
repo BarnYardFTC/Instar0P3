@@ -54,6 +54,7 @@ public class BarnRobot {
 
     public void periodic() {
         telemetry.update();
+        drive.follower.update();
     }
 
     public boolean sticksUsed() {
