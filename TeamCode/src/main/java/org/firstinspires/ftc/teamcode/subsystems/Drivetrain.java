@@ -49,10 +49,10 @@ public class Drivetrain extends SubsystemBase {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    private void fieldCentric() {
+    private void fieldCentric() { //TODO: write a system that can invert controls without misplacing the robot
         powers = ManualDrive.fieldCentric(
-                -BarnRobot.getInstance().gamepadEx1.getLeftY() * speedModifier,
-                BarnRobot.getInstance().gamepadEx1.getLeftX() * speedModifier,
+                BarnRobot.getInstance().gamepadEx1.getLeftY() * speedModifier,
+                -BarnRobot.getInstance().gamepadEx1.getLeftX() * speedModifier,
                 BarnRobot.getInstance().gamepadEx1.getRightX() * speedModifier * 0.7,
                 follower.pose().heading()
         );
