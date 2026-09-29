@@ -19,13 +19,13 @@ public class TeleopTemplate {
     public static void apply(OpMode opMode) {
         PhotonCore.enable();
         robot.init(opMode);
-        robot.shooter.setDefaultCommand(robot.shooter.operateShooter());
+        robot.shooter.setDefaultCommand(robot.shooter.operateShooterDependsOnDist());
         robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
 
         // Binds
         toggleBind(GamepadKeys.Button.B, "Change speed", robot.drive.setSlowModeCommand(),  robot.drive.setFastModeCommand());
         toggleBind(GamepadKeys.Button.A, "Transfer", robot.transfer.setPassCommand(), robot.transfer.setCollectCommand());
-        toggleBind(GamepadKeys.Button.Y, "Shooter", robot.shooter.turnOff(), robot.shooter.operateShooter());
+        toggleBind(GamepadKeys.Button.Y, "Shooter", robot.shooter.turnOff(), robot.shooter.operateShooterDependsOnDist());
         toggleBind(GamepadKeys.Button.X, "Intake", robot.intake.disableCommand(), robot.intake.enableCommand());
     }
 
