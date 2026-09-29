@@ -16,7 +16,7 @@ public class Shooter extends SubsystemBase {
 
     private double kV = 0.000176, kS = 0.09, kP = 0.00145;
 
-    public static int RPM = 1500;
+    public static int RPM = 2500;
 
     private DcMotorEx rightMotor;
     private DcMotorEx leftMotor;
