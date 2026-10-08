@@ -13,6 +13,7 @@ import com.seattlesolvers.solverslib.command.DeferredCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
+import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 import com.seattlesolvers.solverslib.pedroCommand.TurnToCommand;
 
@@ -36,6 +37,8 @@ public class Drivetrain extends SubsystemBase {
     private final Pose goalPose = new Pose(47, 130, 0);
 
     private double speedModifier;
+
+    private boolean pollenInReach = true;
 
 
     public Drivetrain() {
@@ -69,6 +72,23 @@ public class Drivetrain extends SubsystemBase {
         );
         follower.manual(powers);
         follower.update();
+    }
+
+    private void followPollen(double angle, double distance) {
+        double targetX = follower.pose().x() + distance * Math.cos(follower.pose().heading());
+        if (targetX > 72) {
+            pollenInReach = false;
+        } else {
+            pollenInReach = true;
+        }
+
+        powers = new DrivePowers(0, 0, angle); //TODO: determine what to do with angle, add forward input
+        follower.manual(powers);
+        follower.update();
+    }
+
+    public boolean getInReach() {
+        return pollenInReach;
     }
 
     public RunCommand fieldCentricCommand() {
