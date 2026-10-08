@@ -28,8 +28,8 @@ public class TeleopTemplate {
         toggleBind(GamepadKeys.Button.A, "Transfer", robot.transfer.setPassCommand(), robot.transfer.setCollectCommand());
         toggleBind(GamepadKeys.Button.Y, "Shooter", robot.shooter.turnOff(), robot.shooter.operateShooterDependsOnDist());
         toggleBind(GamepadKeys.Button.X, "Intake", robot.intake.disableCommand(), robot.intake.enableCommand());
-        toggleBind(GamepadKeys.Button.DPAD_DOWN, "Go to", robot.drive.goToCommand(new Pose(47, 47, 90)), robot.drive.goToCommand(new Pose(47, 47, 90)));
-        toggleBind(GamepadKeys.Button.DPAD_UP, "Turn to", robot.drive.turnToGoal(), robot.drive.turnToGoal());
+        //toggleBind(GamepadKeys.Button.DPAD_DOWN, "Go to", robot.drive.goToCommand(new Pose(47, 47, 90)), robot.drive.goToCommand(new Pose(47, 47, 90)));
+        //toggleBind(GamepadKeys.Button.DPAD_UP, "Turn to", robot.drive.turnToGoal(), robot.drive.turnToGoal());
     }
 
     public static void toggleBind(GamepadKeys.Button button, String description, Command command1, Command command2) {
@@ -54,7 +54,6 @@ public class TeleopTemplate {
 
     public static void periodic(){
         binds.forEach(robot.telemetry::addLine);
-        robot.telemetry.addData("pose: ", robot.drive.follower.pose().x() + ", " + robot.drive.follower.pose().y());
         robot.periodic();
     }
 

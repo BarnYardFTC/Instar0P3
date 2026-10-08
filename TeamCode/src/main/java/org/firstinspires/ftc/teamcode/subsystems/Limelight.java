@@ -68,9 +68,23 @@ public class Limelight extends SubsystemBase {
     LLResultTypes.FiducialResult goalD = null;
 
     double goalDistance = 1;
-    public double getDistance() {
-        if (hasValidTarget() && feducialResultates != null && !feducialResultates.isEmpty()) {
-            goalD = feducialResultates.get(0);
+//    public double getDistance() {
+//        if (hasValidTarget() && feducialResultates != null && !feducialResultates.isEmpty()) {
+//            goalD = feducialResultates.get(0);
+//            for (LLResultTypes.FiducialResult fr : feducialResultates) {
+//                if (fr.getTargetArea() > goalD.getTargetArea()) {
+//                    goalD = fr;
+//                }
+//            }
+//            Pose3D pose = goalD.getTargetPoseCameraSpace();
+//        }
+//        return goalDistance;
+//    }
+
+
+    public double getGoalDistance() {
+        if (hasValidTarget()) {
+            goalD = latestResult;
             for (LLResultTypes.FiducialResult fr : feducialResultates) {
                 if (fr.getTargetArea() > goalD.getTargetArea()) {
                     goalD = fr;
