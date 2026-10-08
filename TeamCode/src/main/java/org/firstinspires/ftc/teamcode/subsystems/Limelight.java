@@ -14,7 +14,7 @@ public class Limelight extends SubsystemBase {
     private final Limelight3A limelight;
     private LLResult latestResult;
 
-    private List<LLResultTypes.FiducialResult> feducialResultates ;
+    private List<LLResultTypes.ColorResult> colorResults;
     public Limelight() {
         limelight = BarnRobot.getInstance().hardware.limelight;
         limelight.setPollRateHz(100);
@@ -29,7 +29,7 @@ public class Limelight extends SubsystemBase {
         LLResult result = limelight.getLatestResult();
         if (result != null) {
             latestResult = result;
-            feducialResultates = latestResult.getFiducialResults();
+            colorResults = latestResult.getColorResults();
         }
     }
 
@@ -65,34 +65,20 @@ public class Limelight extends SubsystemBase {
         return limelight;
     }
 
-    LLResultTypes.FiducialResult goalD = null;
+    LLResultTypes.ColorResult target;
+    double targetDistance = -1;
+    public double getDistance() {
 
-    double goalDistance = 1;
-//    public double getDistance() {
-//        if (hasValidTarget() && feducialResultates != null && !feducialResultates.isEmpty()) {
-//            goalD = feducialResultates.get(0);
-//            for (LLResultTypes.FiducialResult fr : feducialResultates) {
-//                if (fr.getTargetArea() > goalD.getTargetArea()) {
-//                    goalD = fr;
-//                }
-//            }
-//            Pose3D pose = goalD.getTargetPoseCameraSpace();
-//        }
-//        return goalDistance;
-//    }
-
-
-    public double getGoalDistance() {
-        if (hasValidTarget()) {
-            goalD = latestResult;
-            for (LLResultTypes.FiducialResult fr : feducialResultates) {
-                if (fr.getTargetArea() > goalD.getTargetArea()) {
-                    goalD = fr;
+        if (hasValidTarget() && colorResults != null && !colorResults.isEmpty()) {
+            target = colorResults.get(0);
+            for (LLResultTypes.ColorResult fr : colorResults) {
+                if (fr.getTargetArea() > target.getTargetArea()) {
+                    target = fr;
                 }
             }
-            Pose3D pose = goalD.getTargetPoseCameraSpace();
+            targetDistance = target.getTargetPoseCameraSpace().getPosition().z;
         }
-        return goalDistance;
+        return targetDistance;
     }
 
     @Override

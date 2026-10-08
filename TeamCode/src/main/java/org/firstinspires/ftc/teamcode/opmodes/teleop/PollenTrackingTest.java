@@ -21,7 +21,7 @@ public class PollenTrackingTest extends CommandOpMode {
         super.run();
         telemetry.addData("Ty", robot.limelight.getTx());
         telemetry.addData("Tx", robot.limelight.getTy());
-        telemetry.addData("Distance", robot.limelight.getGoalDistance());
+        telemetry.addData("Distance", robot.limelight.getDistance());
     }
 
 
