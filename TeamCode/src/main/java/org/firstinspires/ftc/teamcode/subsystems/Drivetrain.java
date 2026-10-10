@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.pedropathing.api.Paths.line;
 
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
@@ -17,8 +18,16 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 import com.seattlesolvers.solverslib.pedroCommand.TurnToCommand;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
@@ -39,6 +48,13 @@ public class Drivetrain extends SubsystemBase {
     private double speedModifier;
 
     private boolean pollenInReach = true;
+
+    //TODO: Find min and max tx where we  can intake pollens
+    private final double maxTx = 1;
+    private final double minTx = 0.5;
+
+    public Set<Pose> targetsHashSet = new LinkedHashSet<>();
+    public List<Pose> targetsList = new ArrayList<>(targetsHashSet);
 
 
     public Drivetrain() {
@@ -74,17 +90,38 @@ public class Drivetrain extends SubsystemBase {
         follower.update();
     }
 
-    private void followPollen(double angle, double distance) {
+    //Converts robot position and target position from limelight view to the target's field position
+    public Pose targetToField(Pose robotPose, Pose3D targetPoseRobotSpace){
+        Position targetPose = targetPoseRobotSpace.getPosition().toUnit(DistanceUnit.INCH);
+        double forward = targetPose.y;
+        double left = -targetPose.x;
+
+        double heading = robotPose.heading();
+        double cos = Math.cos(heading);
+        double sin = Math.sin(heading);
+
+        double fieldX = robotPose.x() + forward * cos - left * sin;
+        double fieldY = robotPose.y() + forward * sin + left * cos;
+
+        return new Pose(fieldX, fieldY);
+    }
+
+    Pose pollenPose;
+    public void followPollen(double distance, double tx) {
         double targetX = follower.pose().x() + distance * Math.cos(follower.pose().heading());
-        if (targetX > 72) {
+        if (targetX > 72 && (tx < minTx || tx > maxTx)) {
             pollenInReach = false;
         } else {
             pollenInReach = true;
         }
 
-        powers = new DrivePowers(0, 0, angle); //TODO: determine what to do with angle, add forward input
-        follower.manual(powers);
-        follower.update();
+        if(pollenInReach){
+            pollenPose = targetToField(follower.pose(), BarnRobot.getInstance().limelight.getTargetRobotSpace());
+            goToCommand(pollenPose);
+        }
+//        powers = new DrivePowers(0, 0, angle); //TODO: determine what to do with angle, add forward input
+//        follower.manual(powers);
+//        follower.update();
     }
 
     public boolean getInReach() {
@@ -116,4 +153,11 @@ public class Drivetrain extends SubsystemBase {
     public Command goToCommand(Pose pose) {
         return new FollowPathCommand(follower, line(follower.pose(), pose).constant(pose.heading()));
     } //TODO: fix the logic of switching between this and field centric
+
+
+    //Function for future builder of collecting paths for auto
+    public Command goToTargetCommand(Pose pose){
+        targetsHashSet.remove(pose);
+        return new FollowPathCommand(follower, line(follower.pose(), pose).linear(follower.pose().heading(), pose.heading()));
+    }
 }

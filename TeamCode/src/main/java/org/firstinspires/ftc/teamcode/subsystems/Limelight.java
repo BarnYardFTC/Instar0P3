@@ -1,12 +1,17 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.pedropathing.api.PoseFactory;
+import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
+import org.opencv.core.Mat;
 
 import java.util.List;
 
@@ -79,6 +84,24 @@ public class Limelight extends SubsystemBase {
             targetDistance = target.getTargetPoseCameraSpace().getPosition().z;
         }
         return targetDistance;
+    }
+
+    //Gets target(pollen) position relying on robot position = 0,0,0
+    public Pose3D getTargetRobotSpace() {
+        if (hasValidTarget() && colorResults != null && !colorResults.isEmpty()) {
+            target = colorResults.get(0);
+            for (LLResultTypes.ColorResult fr : colorResults) {
+                if (fr.getTargetArea() > target.getTargetArea()) {
+                    target = fr;
+                }
+            }
+        }
+        return target.getTargetPoseRobotSpace();
+    }
+
+    //For future builder of collecting paths for auto
+    private void targetFinder(){
+        BarnRobot.getInstance().drive.targetsHashSet.add(new Pose(getTargetRobotSpace().getPosition().x,getTargetRobotSpace().getPosition().y, getTargetRobotSpace().getOrientation().getYaw()));
     }
 
     @Override
