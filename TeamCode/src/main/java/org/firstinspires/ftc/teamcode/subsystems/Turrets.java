@@ -20,8 +20,11 @@ import org.firstinspires.ftc.teamcode.general.BarnRobot;
   * Set to track a position with trackPositionCommand().
   * It tracks field center unless you set a goal with setGoalCommand. */
 public class Turrets extends SubsystemBase { //TODO: parallax correction -> if needed <-
+
     private CRServoEx frontServo;
     private CRServoEx backServo;
+
+    public static final double GEAR_RATIO = 2.75; // 2.75:1 turret gear ratio
 
     private AbsoluteAnalogEncoder frontEncoder;
     private AbsoluteAnalogEncoder backEncoder;
@@ -38,9 +41,14 @@ public class Turrets extends SubsystemBase { //TODO: parallax correction -> if n
         backServo.setTargetPosition(0);
     }
 
+    public void simpleSet(double degrees) {
+        int targetPosition = (int) Math.round(degrees * GEAR_RATIO);
+        frontServo.setTargetPosition(targetPosition);
+        backServo.setTargetPosition(targetPosition);
+    }
+
     public void simpleSet(int degrees) {
-        frontServo.setTargetPosition(degrees);
-        backServo.setTargetPosition(degrees);
+        simpleSet((double) degrees);
     }
 
     public void trackPosition(Pose targetPose) {
@@ -54,19 +62,26 @@ public class Turrets extends SubsystemBase { //TODO: parallax correction -> if n
         relativeAngleRad = Math.atan2(Math.sin(relativeAngleRad), Math.cos(relativeAngleRad));
 
         double targetDegrees = Math.toDegrees(relativeAngleRad);
-        simpleSet((int) Math.round(targetDegrees));
+        simpleSet(targetDegrees);
     }
 
     public double[] getTurretPositions() {
-        return new double[] {frontEncoder.getCurrentPosition(), backEncoder.getCurrentPosition()};
+        return new double[] {
+            frontEncoder.getCurrentPosition() / GEAR_RATIO,
+            backEncoder.getCurrentPosition() / GEAR_RATIO
+        };
     }
 
     private void setGoal(Pose pose) {
         goalPose = pose;
     }
 
-    public Command simpleSetCommand(int degrees) {
+    public Command simpleSetCommand(double degrees) {
         return new InstantCommand(() -> simpleSet(degrees), this);
+    }
+
+    public Command simpleSetCommand(int degrees) {
+        return simpleSetCommand((double) degrees);
     }
 
     public Command trackPositionCommand(Pose targetPose) {
