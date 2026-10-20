@@ -20,8 +20,8 @@ public class TeleopTemplate {
     public static void apply(OpMode opMode) {
         PhotonCore.enable();
         robot.init(opMode);
-        robot.shooter.setDefaultCommand(robot.shooter.operateShooterDependsOnDist());
-        robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
+//        robot.shooter.setDefaultCommand(robot.shooter.operateShooterDependsOnDist());
+        robot.drive.setDefaultCommand(robot.drive.followPollenCommand());
 
         // Binds
         toggleBind(GamepadKeys.Button.B, "Change speed", robot.drive.setSlowModeCommand(),  robot.drive.setFastModeCommand());
@@ -54,6 +54,17 @@ public class TeleopTemplate {
 
     public static void periodic(){
         binds.forEach(robot.telemetry::addLine);
+        robot.telemetry.addData("TX", robot.limelight.getTx());
+        robot.telemetry.addData("TY", robot.limelight.getTy());
+        robot.telemetry.addData("TA", robot.limelight.getTa());
+
+
+        robot.telemetry.addData("Target Robot Space:", robot.limelight.getTargetRobotSpace());
+        robot.telemetry.addData("Is data: ", robot.limelight.isData);
+        robot.telemetry.addData("Is valid: ", robot.limelight.isValid);
+
+//        robot.telemetry.addData("Target Distance:", BarnRobot.getInstance().limelight.getDistance());
+//        robot.telemetry.addData("targetToField",robot.drive.targetToField(robot.drive.follower.pose(), robot.limelight.getTargetRobotSpace()));
         robot.periodic();
     }
 

@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 
 import com.pedropathing.revhub.localizers.ThreeWheelLocalizer;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
-
+@TeleOp(name = "PolenTrackingTest", group = "test")
 public class PollenTrackingTest extends CommandOpMode {
     BarnRobot robot = BarnRobot.getInstance();
 

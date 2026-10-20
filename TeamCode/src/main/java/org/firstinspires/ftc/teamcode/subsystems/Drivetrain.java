@@ -15,6 +15,7 @@ import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 import com.seattlesolvers.solverslib.pedroCommand.TurnToCommand;
 
@@ -91,34 +92,39 @@ public class Drivetrain extends SubsystemBase {
     }
 
     //Converts robot position and target position from limelight view to the target's field position
-    public Pose targetToField(Pose robotPose, Pose3D targetPoseRobotSpace){
-        Position targetPose = targetPoseRobotSpace.getPosition().toUnit(DistanceUnit.INCH);
-        double forward = targetPose.y;
-        double left = -targetPose.x;
-
-        double heading = robotPose.heading();
-        double cos = Math.cos(heading);
-        double sin = Math.sin(heading);
-
-        double fieldX = robotPose.x() + forward * cos - left * sin;
-        double fieldY = robotPose.y() + forward * sin + left * cos;
-
-        return new Pose(fieldX, fieldY);
-    }
+//    public Pose targetToField(Pose robotPose, Pose2D targetPoseRobotSpace){
+//        Pose targetPose = new Pose(targetPoseRobotSpace.getX(DistanceUnit.INCH), targetPoseRobotSpace.getY(DistanceUnit.INCH));
+//        double forward = targetPose.y();
+//        double left = -targetPose.x();
+//
+//        double heading = robotPose.heading();
+//        double cos = Math.cos(heading);
+//        double sin = Math.sin(heading);
+//
+//        double fieldX = robotPose.x() + forward * cos - left * sin;
+//        double fieldY = robotPose.y() + forward * sin + left * cos;
+//
+//        return new Pose(fieldX, fieldY);
+//    }
 
     Pose pollenPose;
-    public void followPollen(double distance, double tx) {
-        double targetX = follower.pose().x() + distance * Math.cos(follower.pose().heading());
-        if (targetX > 72 && (tx < minTx || tx > maxTx)) {
-            pollenInReach = false;
-        } else {
-            pollenInReach = true;
-        }
+    public void followPollen() {
+//        double targetX = follower.pose().x() + distance * Math.cos(follower.pose().heading());
+//        if (targetX > 72 && (tx < minTx || tx > maxTx)) {
+//            pollenInReach = false;
+//        } else {
+//            pollenInReach = true;
+//        }
+        double forward = BarnRobot.getInstance().limelight.getTa() > 0 ? 1.0/(1.0 + BarnRobot.getInstance().limelight.getTa()) : 0  ;
+        powers = new DrivePowers(-1*forward, 0, BarnRobot.getInstance().limelight.getTx()*-0.05);
 
-        if(pollenInReach){
-            pollenPose = targetToField(follower.pose(), BarnRobot.getInstance().limelight.getTargetRobotSpace());
-            goToCommand(pollenPose);
-        }
+        follower.manual(powers);
+        follower.update();
+
+//        if(pollenInReach){
+//            pollenPose = targetToField(follower.pose(), BarnRobot.getInstance().limelight.getTargetRobotSpace ());
+//            goToCommand(pollenPose);
+//        }
 //        powers = new DrivePowers(0, 0, angle); //TODO: determine what to do with angle, add forward input
 //        follower.manual(powers);
 //        follower.update();
@@ -130,6 +136,10 @@ public class Drivetrain extends SubsystemBase {
 
     public RunCommand fieldCentricCommand() {
         return new RunCommand(this::fieldCentric, this);
+    }
+
+    public RunCommand followPollenCommand(){
+        return new RunCommand(this::followPollen, this);
     }
 
     public Command setSlowModeCommand() {
