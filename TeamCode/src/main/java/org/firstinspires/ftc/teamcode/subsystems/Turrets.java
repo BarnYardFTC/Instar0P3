@@ -26,6 +26,9 @@ public class Turrets extends SubsystemBase { //TODO: parallax correction -> if n
 
     public static final double GEAR_RATIO = 2.75; // 2.75:1 turret gear ratio
 
+    private static final double MIN_ANGLE = 10;
+    private static final double MAX_ANGLE = 350;
+
     private AbsoluteAnalogEncoder frontEncoder;
     private AbsoluteAnalogEncoder backEncoder;
 
@@ -35,14 +38,14 @@ public class Turrets extends SubsystemBase { //TODO: parallax correction -> if n
         //init with hardware once present, in hardware set ts to degrees
 
         frontServo.setPIDF(new PIDFCoefficients(0.01, 0.0, 0.001, 0.0));
-        frontServo.setTargetPosition(0);
-
         backServo.setPIDF(new PIDFCoefficients(0.01, 0.0, 0.001, 0.0));
-        backServo.setTargetPosition(0);
+
+        simpleSet(180);
     }
 
     public void simpleSet(double degrees) {
-        int targetPosition = (int) Math.round(degrees * GEAR_RATIO);
+        double clampedDegrees = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, degrees));
+        int targetPosition = (int) Math.round(clampedDegrees * GEAR_RATIO);
         frontServo.setTargetPosition(targetPosition);
         backServo.setTargetPosition(targetPosition);
     }
@@ -57,11 +60,12 @@ public class Turrets extends SubsystemBase { //TODO: parallax correction -> if n
         double dy = targetPose.y() - botPose.y();
 
         double targetAngleRad = Math.atan2(dy, dx);
-        double relativeAngleRad = targetAngleRad - botPose.heading();
+        double relativeAngleRad = Math.atan2(
+            Math.sin(targetAngleRad - botPose.heading()),
+            Math.cos(targetAngleRad - botPose.heading())
+        );
 
-        relativeAngleRad = Math.atan2(Math.sin(relativeAngleRad), Math.cos(relativeAngleRad));
-
-        double targetDegrees = Math.toDegrees(relativeAngleRad);
+        double targetDegrees = 180.0 + Math.toDegrees(relativeAngleRad);
         simpleSet(targetDegrees);
     }
 
@@ -80,10 +84,6 @@ public class Turrets extends SubsystemBase { //TODO: parallax correction -> if n
         return new InstantCommand(() -> simpleSet(degrees), this);
     }
 
-    public Command simpleSetCommand(int degrees) {
-        return simpleSetCommand((double) degrees);
-    }
-
     public Command trackPositionCommand(Pose targetPose) {
         return new RunCommand(() -> trackPosition(targetPose), this);
     }
@@ -93,6 +93,6 @@ public class Turrets extends SubsystemBase { //TODO: parallax correction -> if n
     }
 
     public RunCommand trackPositionCommand() {
-        return new RunCommand(() -> trackPosition(goalPose));
+        return new RunCommand(() -> trackPosition(goalPose), this);
     }
 }
