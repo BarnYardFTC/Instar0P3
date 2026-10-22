@@ -7,29 +7,51 @@ import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.subsystems.BarnTurret;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.Transfer;
-
+import org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 public class BarnRobot {
     private static BarnRobot instance;
     public Telemetry telemetry;
     public GamepadEx gamepadEx1;
 
-    public Hardware hardware;
-
     public Drivetrain drive;
-
+    public Intake intake;
+    public Turret frontTurret;
+    public Turret backTurret;
+    public BarnTurret barnFrontTurret;
+    public BarnTurret barnBackTurret;
     public Pinpoint pinpoint;
     public Limelight limelight;
-    public Intake intake;
-    public Transfer transfer;
-    public Shooter shooter;
 
+    public enum HARDWARE {
+        DRIVETRAIN_LB("leftBackDrivetrain"),
+        DRIVETRAIN_LF("leftFrontDrivetrain"),
+        DRIVETRAIN_RB("rightBackDrivetrain"),
+        DRIVETRAIN_RF("rightFrontDrivetrain"),
+        PINPOINT("pinpoint"),
+        LIMELIGHT("limelight"),
+        INTAKE("intake"),
+        TRANSFER("transfer"),
+        FRONT_GATE("frontGate"),
+        BACK_GATE("backGate"),
+        FRONT_TURRET("frontTurret"),
+        BACK_TURRET("backTurret"),
+        FRONT_TURRET_ENCODER("frontTurretEncoder"),
+        BACK_TURRET_ENCODER("backTurretEncoder"),
+        SHOOTER_FRONT("shooterMotorFront"),
+        SHOOTER_BACK("shooterMotorBack");
+
+        public final String key;
+
+        HARDWARE(String key) {
+            this.key = key;
+        }
+    }
     public static boolean isRobotInitialized = false;
 
     public static synchronized BarnRobot getInstance() {
@@ -41,15 +63,24 @@ public class BarnRobot {
     }
 
     public void init(OpMode opMode) {
-        hardware = new Hardware(opMode.hardwareMap);
         gamepadEx1 = new GamepadEx(opMode.gamepad1);
-        pinpoint = new Pinpoint();
-        limelight = new Limelight();
-        drive = new Drivetrain();
-        intake = new Intake();
-        transfer = new Transfer();
-        shooter = new Shooter();
         telemetry = opMode.telemetry;
+
+        pinpoint = new Pinpoint(opMode.hardwareMap, HARDWARE.PINPOINT.key);
+        limelight = new Limelight(opMode.hardwareMap, HARDWARE.LIMELIGHT.key);
+        drive = new Drivetrain(
+                opMode.hardwareMap,
+                HARDWARE.DRIVETRAIN_LF.key,
+                HARDWARE.DRIVETRAIN_RF.key,
+                HARDWARE.DRIVETRAIN_LB.key,
+                HARDWARE.DRIVETRAIN_RB.key
+        );
+        intake = new Intake(opMode.hardwareMap, HARDWARE.INTAKE.key);
+
+        frontTurret = new Turret(opMode.hardwareMap, HARDWARE.FRONT_TURRET.key, HARDWARE.FRONT_TURRET_ENCODER.key);
+        backTurret = new Turret(opMode.hardwareMap, HARDWARE.BACK_TURRET.key, HARDWARE.BACK_TURRET_ENCODER.key);
+        barnFrontTurret = new BarnTurret(opMode.hardwareMap, HARDWARE.FRONT_TURRET.key);
+        barnBackTurret = new BarnTurret(opMode.hardwareMap, HARDWARE.BACK_TURRET.key);
     }
 
     public void periodic() {

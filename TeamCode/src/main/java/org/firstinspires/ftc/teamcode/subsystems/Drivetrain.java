@@ -2,35 +2,27 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.pedropathing.api.Paths.line;
 
-import com.pedropathing.api.PoseFactory;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
-import com.seattlesolvers.solverslib.command.DeferredCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
-import com.seattlesolvers.solverslib.gamepad.GamepadEx;
-import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 import com.seattlesolvers.solverslib.pedroCommand.TurnToCommand;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
-import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.general.Constants;
 
 public class Drivetrain extends SubsystemBase {
     private final DcMotor leftFront;
@@ -57,19 +49,18 @@ public class Drivetrain extends SubsystemBase {
     public Set<Pose> targetsHashSet = new LinkedHashSet<>();
     public List<Pose> targetsList = new ArrayList<>(targetsHashSet);
 
-
-    public Drivetrain() {
-        leftFront = BarnRobot.getInstance().hardware.leftFrontDrivetrain;
-        rightFront = BarnRobot.getInstance().hardware.rightFrontDrivetrain;
-        leftBack = BarnRobot.getInstance().hardware.leftBackDrivetrain;
-        rightBack = BarnRobot.getInstance().hardware.rightBackDrivetrain;
+    public Drivetrain(HardwareMap hwMap, String leftFrontName, String rightFrontName, String leftBackName, String rightBackName) {
+        leftFront = hwMap.get(DcMotor.class, leftFrontName);
+        rightFront = hwMap.get(DcMotor.class, rightFrontName);
+        leftBack = hwMap.get(DcMotor.class, leftBackName);
+        rightBack = hwMap.get(DcMotor.class, rightBackName);
 
         initMotor(DcMotorSimple.Direction.REVERSE, leftFront);
         initMotor(DcMotorSimple.Direction.FORWARD, rightFront);
         initMotor(DcMotorSimple.Direction.REVERSE, leftBack);
         initMotor(DcMotorSimple.Direction.FORWARD, rightBack);
 
-        follower = Constants.create(BarnRobot.getInstance().hardware.hwMap);
+        follower = Constants.create(hwMap);
         speedModifier = FAST_SPEED;
     }
 
@@ -91,43 +82,13 @@ public class Drivetrain extends SubsystemBase {
         follower.update();
     }
 
-    //Converts robot position and target position from limelight view to the target's field position
-//    public Pose targetToField(Pose robotPose, Pose2D targetPoseRobotSpace){
-//        Pose targetPose = new Pose(targetPoseRobotSpace.getX(DistanceUnit.INCH), targetPoseRobotSpace.getY(DistanceUnit.INCH));
-//        double forward = targetPose.y();
-//        double left = -targetPose.x();
-//
-//        double heading = robotPose.heading();
-//        double cos = Math.cos(heading);
-//        double sin = Math.sin(heading);
-//
-//        double fieldX = robotPose.x() + forward * cos - left * sin;
-//        double fieldY = robotPose.y() + forward * sin + left * cos;
-//
-//        return new Pose(fieldX, fieldY);
-//    }
-
     Pose pollenPose;
     public void followPollen() {
-//        double targetX = follower.pose().x() + distance * Math.cos(follower.pose().heading());
-//        if (targetX > 72 && (tx < minTx || tx > maxTx)) {
-//            pollenInReach = false;
-//        } else {
-//            pollenInReach = true;
-//        }
         double forward = BarnRobot.getInstance().limelight.getTa() > 0 ? 1.0/(1.0 + BarnRobot.getInstance().limelight.getTa()) : 0  ;
         powers = new DrivePowers(-1*forward, 0, BarnRobot.getInstance().limelight.getTx()*-0.05);
 
         follower.manual(powers);
         follower.update();
-
-//        if(pollenInReach){
-//            pollenPose = targetToField(follower.pose(), BarnRobot.getInstance().limelight.getTargetRobotSpace ());
-//            goToCommand(pollenPose);
-//        }
-//        powers = new DrivePowers(0, 0, angle); //TODO: determine what to do with angle, add forward input
-//        follower.manual(powers);
-//        follower.update();
     }
 
     public boolean getInReach() {
@@ -163,7 +124,6 @@ public class Drivetrain extends SubsystemBase {
     public Command goToCommand(Pose pose) {
         return new FollowPathCommand(follower, line(follower.pose(), pose).constant(pose.heading()));
     } //TODO: fix the logic of switching between this and field centric
-
 
     //Function for future builder of collecting paths for auto
     public Command goToTargetCommand(Pose pose){

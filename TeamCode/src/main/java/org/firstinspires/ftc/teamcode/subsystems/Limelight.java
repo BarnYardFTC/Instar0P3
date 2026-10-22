@@ -5,6 +5,7 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -25,8 +26,9 @@ public class Limelight extends SubsystemBase {
     public boolean isValid = false;
 
     private List<LLResultTypes.ColorResult> colorResults;
-    public Limelight() {
-        limelight = BarnRobot.getInstance().hardware.limelight;
+
+    public Limelight(HardwareMap hwMap, String deviceName) {
+        limelight = hwMap.get(Limelight3A.class, deviceName);
         limelight.setPollRateHz(100);
         start();
     }
@@ -93,7 +95,7 @@ public class Limelight extends SubsystemBase {
             }
             targetDistance = target_D.getTargetPoseCameraSpace().getPosition().z;
 
-        }else BarnRobot.getInstance().telemetry.addLine("No valid targets");
+        } else BarnRobot.getInstance().telemetry.addLine("No valid targets");
         return targetDistance;
     }
 
@@ -111,15 +113,10 @@ public class Limelight extends SubsystemBase {
                 }
             }
             targetPose = target_S.getTargetPoseCameraSpace();
-        }else isValid = false;
+        } else isValid = false;
 
         return targetPose;
     }
-
-    //For future builder of collecting paths for auto
-//    private void targetFinder(){
-//        BarnRobot.getInstance().drive.targetsHashSet.add(new Pose(getTargetRobotSpace().getPosition().x,getTargetRobotSpace().getPosition().y, getTargetRobotSpace().getOrientation().getYaw()));
-//    }
 
     @Override
     public void periodic() {

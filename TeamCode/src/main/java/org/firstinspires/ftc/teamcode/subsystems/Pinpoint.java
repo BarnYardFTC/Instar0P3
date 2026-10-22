@@ -1,17 +1,16 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-
-import org.firstinspires.ftc.teamcode.general.BarnRobot;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Pinpoint {
     private final GoBildaPinpointDriver pinpoint;
 
-    public Pinpoint() {
-        pinpoint = BarnRobot.getInstance().hardware.pinpoint;
+    public Pinpoint(HardwareMap hwMap, String deviceName) {
+        pinpoint = hwMap.get(GoBildaPinpointDriver.class, deviceName);
     }
 
-    public void update(){
+    public void update() {
         pinpoint.update();
     }
 
