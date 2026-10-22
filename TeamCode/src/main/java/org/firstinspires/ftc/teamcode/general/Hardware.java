@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.seattlesolvers.solverslib.hardware.motors.CRServoEx;
 
 public class  Hardware {
     public HardwareMap hwMap = hardwareMap;
@@ -18,11 +19,14 @@ public class  Hardware {
         DRIVETRAIN_RF("rightFrontDrivetrain"),
         PINPOINT("pinpoint"),
         LIMELIGHT("limelight"),
-        INTAKE("intakeMotor"),
-        DOCK("docServo"),
-        GUARD("guardServo"),
-        SHOOTER_RIGHT("shooterMotorRight"),
-        SHOOTER_LEFT("shooterMotorLeft");
+        INTAKE("intake"),
+        TRANSFER("transfer"),
+        FRONT_GATE("frontGate"),
+        BACK_GATE("backGate"),
+        FRONT_TURRET("frontTurret"),
+        BACK_TURRET("backTurret"),
+        SHOOTER_FRONT("shooterMotorFront"),
+        SHOOTER_BACK("shooterMotorBack");
 
         public final String key;
 
@@ -35,17 +39,18 @@ public class  Hardware {
 
     public GoBildaPinpointDriver pinpoint;
 
-
     public DcMotor leftFrontDrivetrain;
     public DcMotor rightFrontDrivetrain;
     public DcMotor leftBackDrivetrain;
     public DcMotor rightBackDrivetrain;
-    public DcMotorEx shooterMotorRight;
-    public DcMotorEx shooterMotorLeft;
-
-    public DcMotor intake;
-    public Servo dock;
-    public Servo guard;
+    public DcMotor transferMotor;
+    public DcMotor intakeMotor;
+    public DcMotorEx shooterMotorFront;
+    public DcMotorEx shooterMotorBack;
+    public Servo frontGateServo;
+    public Servo backGateServo;
+    public CRServoEx frontTurretServo;
+    public CRServoEx backTurretServo;
 
     public Hardware(HardwareMap hwMap) {
         this.hwMap = hwMap;
@@ -60,15 +65,17 @@ public class  Hardware {
         leftBackDrivetrain = hwMap.get(DcMotor.class, CONFIG.DRIVETRAIN_LB.key);
         rightBackDrivetrain = hwMap.get(DcMotor.class, CONFIG.DRIVETRAIN_RB.key);
 
-        shooterMotorRight = hwMap.get(DcMotorEx.class, CONFIG.SHOOTER_RIGHT.key);
-        shooterMotorLeft = hwMap.get(DcMotorEx.class, CONFIG.SHOOTER_LEFT.key);
+        shooterMotorFront = hwMap.get(DcMotorEx.class, CONFIG.SHOOTER_FRONT.key);
+        shooterMotorBack = hwMap.get(DcMotorEx.class, CONFIG.SHOOTER_BACK.key);
 
-        intake = hwMap.get(DcMotor.class, CONFIG.INTAKE.key);
+        intakeMotor = hwMap.get(DcMotor.class, CONFIG.INTAKE.key);
+        transferMotor = hwMap.get(DcMotor.class, CONFIG.TRANSFER.key);
     }
 
     private void initServos(){
-        dock = hwMap.get(Servo.class, CONFIG.DOCK.key);
-        guard = hwMap.get(Servo.class, CONFIG.GUARD.key);
+        backGateServo = hwMap.get(Servo.class, CONFIG.BACK_GATE.key);
+        frontGateServo = hwMap.get(Servo.class, CONFIG.FRONT_GATE.key);
+
     }
 
     private void initSensors(){
