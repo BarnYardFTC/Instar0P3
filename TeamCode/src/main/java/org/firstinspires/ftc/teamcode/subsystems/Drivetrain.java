@@ -10,9 +10,11 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.CommandBase;
 import com.seattlesolvers.solverslib.command.DeferredCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.geometry.Pose2d;
@@ -33,6 +35,13 @@ import org.firstinspires.ftc.teamcode.general.BarnRobot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 public class Drivetrain extends SubsystemBase {
+    private enum DriveMode {
+        MANUAL,
+        FOLLOWING_POLLEN,
+        FOLLOWING_PROJECTORY
+    }
+    private DriveMode driveMode = DriveMode.MANUAL;
+
     private final DcMotor leftFront;
     private final DcMotor rightFront;
     private final DcMotor leftBack;
@@ -50,7 +59,7 @@ public class Drivetrain extends SubsystemBase {
 
     private boolean pollenInReach = true;
 
-    //TODO: Find min and max tx where we  can intake pollens
+    //TODO: Find min and max tx where we can intake pollens
     private final double maxTx = 1;
     private final double minTx = 0.5;
 
@@ -81,6 +90,8 @@ public class Drivetrain extends SubsystemBase {
     }
 
     private void fieldCentric() { //TODO: write a system that can invert controls without misplacing the robot
+        if (driveMode != DriveMode.MANUAL) return;
+
         powers = ManualDrive.fieldCentric(
                 BarnRobot.getInstance().gamepadEx1.getLeftY() * speedModifier,
                 -BarnRobot.getInstance().gamepadEx1.getLeftX() * speedModifier,
@@ -109,6 +120,8 @@ public class Drivetrain extends SubsystemBase {
 
     Pose pollenPose;
     public void followPollen() {
+        if (driveMode != DriveMode.FOLLOWING_POLLEN) return;
+
 //        double targetX = follower.pose().x() + distance * Math.cos(follower.pose().heading());
 //        if (targetX > 72 && (tx < minTx || tx > maxTx)) {
 //            pollenInReach = false;
@@ -138,8 +151,36 @@ public class Drivetrain extends SubsystemBase {
         return new RunCommand(this::fieldCentric, this);
     }
 
-    public RunCommand followPollenCommand(){
-        return new RunCommand(this::followPollen, this);
+    public Command followPollenCommand() {
+        return new CommandBase() {
+            {
+                addRequirements(Drivetrain.this);
+            }
+
+            @Override
+            public void initialize() {
+                setDriveMode(DriveMode.FOLLOWING_POLLEN);
+            }
+
+            @Override
+            public void execute() {
+                followPollen();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setDriveMode(DriveMode.MANUAL);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+        };
+    }
+
+    private void setDriveMode(DriveMode mode) {
+        driveMode = mode;
     }
 
     public Command setSlowModeCommand() {
@@ -161,9 +202,14 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Command goToCommand(Pose pose) {
-        return new FollowPathCommand(follower, line(follower.pose(), pose).constant(pose.heading()));
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> {}, this),
+                new FollowPathCommand(
+                        follower,
+                        line(follower.pose(), pose).constant(pose.heading())
+                )
+        );
     } //TODO: fix the logic of switching between this and field centric
-
 
     //Function for future builder of collecting paths for auto
     public Command goToTargetCommand(Pose pose){

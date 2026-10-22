@@ -21,7 +21,7 @@ public class TeleopTemplate {
         PhotonCore.enable();
         robot.init(opMode);
 //        robot.shooter.setDefaultCommand(robot.shooter.operateShooterDependsOnDist());
-        robot.drive.setDefaultCommand(robot.drive.followPollenCommand());
+        robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
 
         // Binds
         toggleBind(GamepadKeys.Button.B, "Change speed", robot.drive.setSlowModeCommand(),  robot.drive.setFastModeCommand());
@@ -40,6 +40,8 @@ public class TeleopTemplate {
                 );
         binds.add(button.toString() + ": " + description);
     }
+
+
 
     public static void triggerBind(GamepadKeys.Trigger trigger, String description, Command command, Command offCommand) {
         new Trigger(() -> robot.gamepadEx1.getTrigger(trigger) > 0.5)
