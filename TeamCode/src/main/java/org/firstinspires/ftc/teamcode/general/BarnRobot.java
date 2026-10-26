@@ -23,7 +23,6 @@ public class BarnRobot {
     public Hardware hardware;
 
     public Drivetrain drive;
-
     public Pinpoint pinpoint;
     public Limelight limelight;
     public Intake intake;
