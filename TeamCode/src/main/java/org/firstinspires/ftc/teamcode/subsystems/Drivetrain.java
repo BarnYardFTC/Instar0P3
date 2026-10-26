@@ -38,7 +38,7 @@ public class Drivetrain extends SubsystemBase {
     private enum DriveMode {
         MANUAL,
         FOLLOWING_POLLEN,
-        FOLLOWING_PROJECTORY
+        FOLLOWING_TRAJECTORY
     }
     private DriveMode driveMode = DriveMode.MANUAL;
 
@@ -143,6 +143,12 @@ public class Drivetrain extends SubsystemBase {
 //        follower.update();
     }
 
+    public void followTrajectory() {
+        if (driveMode != DriveMode.FOLLOWING_TRAJECTORY) return;
+
+        // Type code here pls
+    }
+
     public boolean getInReach() {
         return pollenInReach;
     }
@@ -179,6 +185,34 @@ public class Drivetrain extends SubsystemBase {
         };
     }
 
+    public Command followTrajectoryCommand() {
+        return new CommandBase() {
+            {
+                addRequirements(Drivetrain.this);
+            }
+
+            @Override
+            public void initialize() {
+                setDriveMode(DriveMode.FOLLOWING_TRAJECTORY);
+            }
+
+            @Override
+            public void execute() {
+                followTrajectory();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setDriveMode(DriveMode.MANUAL);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+        };
+    }
+
     private void setDriveMode(DriveMode mode) {
         driveMode = mode;
     }
@@ -192,28 +226,47 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Command turnToGoal() {
-        return new TurnToCommand(
-                follower,
-                Math.atan2(
-                    goalPose.y() - follower.pose().y(),
-                    goalPose.x() - follower.pose().x()
-                )
+        return new DeferredCommand(
+                () -> new TurnToCommand(
+                        follower,
+                        Math.atan2(
+                                goalPose.y() - follower.pose().y(),
+                                goalPose.x() - follower.pose().x()
+                        )
+                ),
+                List.of(this)
         );
     }
 
     public Command goToCommand(Pose pose) {
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> {}, this),
-                new FollowPathCommand(
-                        follower,
-                        line(follower.pose(), pose).constant(pose.heading())
-                )
+        return new DeferredCommand(
+                () -> {
+                    Pose start = follower.pose();
+
+                    return new FollowPathCommand(
+                            follower,
+                            line(follower.pose(), pose)
+                                    .constant(pose.heading())
+                    );
+                },
+                List.of(this)
         );
-    } //TODO: fix the logic of switching between this and field centric
+    }
 
     //Function for future builder of collecting paths for auto
     public Command goToTargetCommand(Pose pose){
         targetsHashSet.remove(pose);
-        return new FollowPathCommand(follower, line(follower.pose(), pose).linear(follower.pose().heading(), pose.heading()));
+        return new DeferredCommand(
+                () -> {
+                    Pose start = follower.pose();
+
+                    return new FollowPathCommand(
+                            follower,
+                            line(follower.pose(), pose)
+                                    .linear(follower.pose().heading(), pose.heading())
+                    );
+                },
+                List.of(this)
+        );
     }
 }
