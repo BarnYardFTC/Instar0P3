@@ -22,7 +22,6 @@ public class TeleopTemplate {
         robot.init(opMode);
 //        robot.shooter.setDefaultCommand(robot.shooter.operateShooterDependsOnDist());
         robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
-
         // Binds
         toggleBind(GamepadKeys.Button.B, "Change speed", robot.drive.setSlowModeCommand(),  robot.drive.setFastModeCommand());
         toggleBind(GamepadKeys.Button.A, "Transfer", robot.transfer.setPassCommand(), robot.transfer.setCollectCommand());
@@ -60,10 +59,12 @@ public class TeleopTemplate {
         robot.telemetry.addData("TY", robot.limelight.getTy());
         robot.telemetry.addData("TA", robot.limelight.getTa());
 
+        robot.telemetry.addData("Robot's following:", (robot.limelight.currentPipeline == 1) ? "pollen" : "red nectars");
+
 
         robot.telemetry.addData("Target Robot Space:", robot.limelight.getTargetRobotSpace());
-        robot.telemetry.addData("Is data: ", robot.limelight.isData);
-        robot.telemetry.addData("Is valid: ", robot.limelight.isValid);
+//        robot.telemetry.addData("Is data: ", robot.limelight.isData);
+//        robot.telemetry.addData("Is valid: ", robot.limelight.isValid);
 
 //        robot.telemetry.addData("Target Distance:", BarnRobot.getInstance().limelight.getDistance());
 //        robot.telemetry.addData("targetToField",robot.drive.targetToField(robot.drive.follower.pose(), robot.limelight.getTargetRobotSpace()));

@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.sax.StartElementListener;
+
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
+import com.sun.source.doctree.StartElementTree;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -16,13 +19,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
 import org.opencv.core.Mat;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
+
+import kotlin.collections.UCollectionsKt;
 
 public class Limelight extends SubsystemBase {
     private final Limelight3A limelight;
     private LLResult latestResult;
     public boolean isData = false;
     public boolean isValid = false;
+    public int currentPipeline = 1;
+    private double targetSizeCoefficient = 1.677;
+    private boolean targetAchieved;
 
     private List<LLResultTypes.ColorResult> colorResults;
     public Limelight() {
@@ -33,19 +42,43 @@ public class Limelight extends SubsystemBase {
 
     public void start() {
         limelight.start();
-        limelight.pipelineSwitch(1);
+        limelight.pipelineSwitch(currentPipeline);
     }
+    public void switchPipeline(int num) {
+        limelight.pipelineSwitch(num);
+        currentPipeline = num;
+    }
+    public void setBestTargetPipeline(){
+//        results[currentPipeline - 1] = limelight.getLatestResult();
 
-    public void update() {
-        LLResult result = limelight.getLatestResult();
-        if (result != null) {
-            latestResult = result;
-            colorResults = latestResult.getColorResults();
-            isData = true;
+        LLResult pipeline1;
+        LLResult pipeline2;
+
+        pipeline1 = limelight.getLatestResult();
+        switchPipeline((currentPipeline == 1) ? 2 : 1);
+        pipeline2 = limelight.getLatestResult();
+
+        if (pipeline1 != null && pipeline2 != null){
+            if (pipeline1.getTa() * targetSizeCoefficient >= pipeline2.getTa()) switchPipeline(1);
+            else switchPipeline(2);
         }
         else {
-            isData = false;
+            if (pipeline1!=null) switchPipeline(1);
+            else if (pipeline2!=null) switchPipeline(2);
         }
+        targetAchieved = false;
+    }
+
+    //
+
+    public void update() {
+        if (!targetAchieved){
+            latestResult = limelight.getLatestResult();
+            if (latestResult.isValid() && latestResult != null){
+                colorResults = latestResult.getColorResults();
+            }
+        }
+        else setBestTargetPipeline();
     }
 
     public LLResult getLatestResult() {
@@ -55,7 +88,6 @@ public class Limelight extends SubsystemBase {
     public boolean hasValidTarget() {
         return latestResult != null && latestResult.isValid();
     }
-
     public double getTx() {
         return hasValidTarget() ? latestResult.getTx() : 0.0;
     }
