@@ -9,6 +9,7 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.photon.PhotonCore;
 
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 import java.util.ArrayList;
 
@@ -17,7 +18,7 @@ public class TeleopTemplate {
     private static ArrayList<String> binds = new ArrayList<>();
     private static final BarnRobot robot = BarnRobot.getInstance();
 
-    public static void apply(OpMode opMode) {
+    public static void apply(OpMode opMode, Drivetrain.DriveMode driveMode) {
         PhotonCore.enable();
         robot.init(opMode);
 //        robot.shooter.setDefaultCommand(robot.shooter.operateShooterDependsOnDist());

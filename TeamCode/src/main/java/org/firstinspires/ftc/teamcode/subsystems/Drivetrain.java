@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -35,12 +36,12 @@ import org.firstinspires.ftc.teamcode.general.BarnRobot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 public class Drivetrain extends SubsystemBase {
-    private enum DriveMode {
+    public static enum DriveMode {
         MANUAL,
         FOLLOWING_POLLEN,
         FOLLOWING_TRAJECTORY
     }
-    private DriveMode driveMode = DriveMode.MANUAL;
+    public DriveMode driveMode = DriveMode.MANUAL;
 
     private final DcMotor leftFront;
     private final DcMotor rightFront;
@@ -89,7 +90,10 @@ public class Drivetrain extends SubsystemBase {
     }
 
     private void fieldCentric() { //TODO: write a system that can invert controls without misplacing the robot
-        if (driveMode != DriveMode.MANUAL) return;
+        if (driveMode != DriveMode.MANUAL) {
+            BarnRobot.getInstance().telemetry.addData("Drive Mode", "Not Manual");
+            return;
+        }
 
         powers = ManualDrive.fieldCentric(
                 BarnRobot.getInstance().gamepadEx1.getLeftY() * speedModifier,
@@ -119,16 +123,12 @@ public class Drivetrain extends SubsystemBase {
 
     Pose pollenPose;
     public void followPollen() {
-        if (driveMode != DriveMode.FOLLOWING_POLLEN) return;
+        if (driveMode != DriveMode.FOLLOWING_POLLEN) {
+            BarnRobot.getInstance().telemetry.addData("Drive Mode", "Not Following Pollen");
+            return;
+        }
 
-//        double targetX = follower.pose().x() + distance * Math.cos(follower.pose().heading());
-//        if (targetX > 72 && (tx < minTx || tx > maxTx)) {
-//            pollenInReach = false;
-//        } else {
-//            pollenInReach = true;
-//        }
-
-        if (!BarnRobot.getInstance().limelight.hasValidTarget()) powers = new DrivePowers(0, 0, 0.3);
+        if (!BarnRobot.getInstance().limelight.hasValidTarget() || (follower.pose().x() + 5 > 72 && follower.pose().heading() < 65 && follower.pose().heading() > -65)) powers = new DrivePowers(0, 0, 0.3);
         else {
             double tx = BarnRobot.getInstance().limelight.getTx();
             double turn = 0.0;
@@ -142,14 +142,6 @@ public class Drivetrain extends SubsystemBase {
 
         follower.manual(powers);
         follower.update();
-
-//        if(pollenInReach){
-//            pollenPose = targetToField(follower.pose(), BarnRobot.getInstance().limelight.getTargetRobotSpace ());
-//            goToCommand(pollenPose);
-//        }
-//        powers = new DrivePowers(0, 0, angle); //TODO: determine what to do with angle, add forward input
-//        follower.manual(powers);
-//        follower.update();
     }
 
     public void followTrajectory() {
