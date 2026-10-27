@@ -57,7 +57,6 @@ public class Drivetrain extends SubsystemBase {
 
     private double speedModifier;
 
-    private boolean pollenInReach = true;
 
     //TODO: Find min and max tx where we can intake pollens
     private final double maxTx = 1;
@@ -128,8 +127,18 @@ public class Drivetrain extends SubsystemBase {
 //        } else {
 //            pollenInReach = true;
 //        }
-        double forward = BarnRobot.getInstance().limelight.getTa() > 0 ? 1.0/(1.0 + BarnRobot.getInstance().limelight.getTa()) : 0  ;
-        powers = new DrivePowers(-1*forward, 0, BarnRobot.getInstance().limelight.getTx()*-0.05);
+
+        if (!BarnRobot.getInstance().limelight.hasValidTarget()) powers = new DrivePowers(0, 0, 0.3);
+        else {
+            double tx = BarnRobot.getInstance().limelight.getTx();
+            double turn = 0.0;
+            double forward = 0.3;
+            if (Math.abs(tx) > 1.2) {
+                turn = tx * -0.015;
+                turn = Math.max(-0.35, Math.min(0.35, turn));
+            }
+            powers = new DrivePowers(-1 * forward, 0, turn);
+        }
 
         follower.manual(powers);
         follower.update();
@@ -149,9 +158,6 @@ public class Drivetrain extends SubsystemBase {
         // Type code here pls
     }
 
-    public boolean getInReach() {
-        return pollenInReach;
-    }
 
     public RunCommand fieldCentricCommand() {
         return new RunCommand(this::fieldCentric, this);
