@@ -62,6 +62,7 @@ public class Drivetrain extends SubsystemBase {
     //TODO: Find min and max tx where we can intake pollens
     private final double maxTx = 1;
     private final double minTx = 0.5;
+    private boolean isCollecting = false;
 
     public Set<Pose> targetsHashSet = new LinkedHashSet<>();
     public List<Pose> targetsList = new ArrayList<>(targetsHashSet);
@@ -130,6 +131,7 @@ public class Drivetrain extends SubsystemBase {
 
         if (!BarnRobot.getInstance().limelight.hasValidTarget() || (follower.pose().x() + 5 > 72 && follower.pose().heading() < 65 && follower.pose().heading() > -65)) powers = new DrivePowers(0, 0, 0.3);
         else {
+            isCollecting = true;
             double tx = BarnRobot.getInstance().limelight.getTx();
             double turn = 0.0;
             double forward = 0.3;
@@ -139,6 +141,7 @@ public class Drivetrain extends SubsystemBase {
             }
             powers = new DrivePowers(-1 * forward, 0, turn);
         }
+        if(BarnRobot.getInstance().limelight.targetAchieved)
 
         follower.manual(powers);
         follower.update();

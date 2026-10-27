@@ -31,7 +31,7 @@ public class Limelight extends SubsystemBase {
     public boolean isValid = false;
     public int currentPipeline = 1;
     private double targetSizeCoefficient = 1.677;
-    private boolean targetAchieved;
+    public boolean targetAchieved;
 
     private List<LLResultTypes.ColorResult> colorResults;
     public Limelight() {
