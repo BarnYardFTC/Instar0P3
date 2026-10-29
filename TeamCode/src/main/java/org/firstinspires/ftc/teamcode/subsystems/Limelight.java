@@ -79,6 +79,13 @@ public class Limelight extends SubsystemBase {
             }
         }
         else setBestTargetPipeline();
+
+        if (!limelight.getLatestResult().isValid()) {
+            isData = false;
+            targetAchieved = true;
+        } else {
+            isData = true;
+        }
     }
 
     public LLResult getLatestResult() {

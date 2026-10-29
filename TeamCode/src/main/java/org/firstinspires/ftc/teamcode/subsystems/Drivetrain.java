@@ -141,7 +141,7 @@ public class Drivetrain extends SubsystemBase {
             }
             powers = new DrivePowers(-1 * forward, 0, turn);
         }
-        if(BarnRobot.getInstance().limelight.targetAchieved)
+//        if(BarnRobot.getInstance().limelight.targetAchieved)
 
         follower.manual(powers);
         follower.update();
