@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.pedropathing.api.Paths.line;
 
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
@@ -10,21 +11,39 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.CommandBase;
+import com.seattlesolvers.solverslib.command.DeferredCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
+import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.geometry.Pose2d;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
 import com.seattlesolvers.solverslib.pedroCommand.TurnToCommand;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
 import org.firstinspires.ftc.teamcode.general.Constants;
 
 public class Drivetrain extends SubsystemBase {
+    public static enum DriveMode {
+        MANUAL,
+        FOLLOWING_POLLEN,
+        FOLLOWING_TRAJECTORY
+    }
+    public DriveMode driveMode = DriveMode.MANUAL;
+
     private final DcMotor leftFront;
     private final DcMotor rightFront;
     private final DcMotor leftBack;
@@ -40,20 +59,21 @@ public class Drivetrain extends SubsystemBase {
 
     private double speedModifier;
 
-    private boolean pollenInReach = true;
 
-    //TODO: Find min and max tx where we  can intake pollens
+    //TODO: Find min and max tx where we can intake pollens
     private final double maxTx = 1;
     private final double minTx = 0.5;
+    private boolean isCollecting = false;
 
     public Set<Pose> targetsHashSet = new LinkedHashSet<>();
     public List<Pose> targetsList = new ArrayList<>(targetsHashSet);
 
-    public Drivetrain(HardwareMap hwMap, String leftFrontName, String rightFrontName, String leftBackName, String rightBackName) {
-        leftFront = hwMap.get(DcMotor.class, leftFrontName);
-        rightFront = hwMap.get(DcMotor.class, rightFrontName);
-        leftBack = hwMap.get(DcMotor.class, leftBackName);
-        rightBack = hwMap.get(DcMotor.class, rightBackName);
+
+    public Drivetrain(HardwareMap hwMap, String leftFrontMotorName, String rightFrontMotorName, String leftBackMotorName, String rightBackMotorName) {
+        leftFront = hwMap.get(DcMotor.class, leftFrontMotorName);
+        rightFront = hwMap.get(DcMotor.class, rightFrontMotorName);
+        leftBack = hwMap.get(DcMotor.class, leftBackMotorName);
+        rightBack = hwMap.get(DcMotor.class, rightBackMotorName);
 
         initMotor(DcMotorSimple.Direction.REVERSE, leftFront);
         initMotor(DcMotorSimple.Direction.FORWARD, rightFront);
@@ -72,6 +92,11 @@ public class Drivetrain extends SubsystemBase {
     }
 
     private void fieldCentric() { //TODO: write a system that can invert controls without misplacing the robot
+        if (driveMode != DriveMode.MANUAL) {
+            BarnRobot.getInstance().telemetry.addData("Drive Mode", "Not Manual");
+            return;
+        }
+
         powers = ManualDrive.fieldCentric(
                 BarnRobot.getInstance().gamepadEx1.getLeftY() * speedModifier,
                 -BarnRobot.getInstance().gamepadEx1.getLeftX() * speedModifier,
@@ -82,25 +107,116 @@ public class Drivetrain extends SubsystemBase {
         follower.update();
     }
 
+    //Converts robot position and target position from limelight view to the target's field position
+//    public Pose targetToField(Pose robotPose, Pose2D targetPoseRobotSpace){
+//        Pose targetPose = new Pose(targetPoseRobotSpace.getX(DistanceUnit.INCH), targetPoseRobotSpace.getY(DistanceUnit.INCH));
+//        double forward = targetPose.y();
+//        double left = -targetPose.x();
+//
+//        double heading = robotPose.heading();
+//        double cos = Math.cos(heading);
+//        double sin = Math.sin(heading);
+//
+//        double fieldX = robotPose.x() + forward * cos - left * sin;
+//        double fieldY = robotPose.y() + forward * sin + left * cos;
+//
+//        return new Pose(fieldX, fieldY);
+//    }
+
     Pose pollenPose;
     public void followPollen() {
-        double forward = BarnRobot.getInstance().limelight.getTa() > 0 ? 1.0/(1.0 + BarnRobot.getInstance().limelight.getTa()) : 0  ;
-        powers = new DrivePowers(-1*forward, 0, BarnRobot.getInstance().limelight.getTx()*-0.05);
+        if (driveMode != DriveMode.FOLLOWING_POLLEN) {
+            BarnRobot.getInstance().telemetry.addData("Drive Mode", "Not Following Pollen");
+            return;
+        }
+
+        if (!BarnRobot.getInstance().limelight.hasValidTarget() || (follower.pose().x() + 5 > 72 && follower.pose().heading() < 65 && follower.pose().heading() > -65)) powers = new DrivePowers(0, 0, 0.3);
+        else {
+            isCollecting = true;
+            double tx = BarnRobot.getInstance().limelight.getTx();
+            double turn = 0.0;
+            double forward = 0.3;
+            if (Math.abs(tx) > 1.2) {
+                turn = tx * -0.015;
+                turn = Math.max(-0.35, Math.min(0.35, turn));
+            }
+            powers = new DrivePowers(-1 * forward, 0, turn);
+        }
+//        if(BarnRobot.getInstance().limelight.targetAchieved)
 
         follower.manual(powers);
         follower.update();
     }
 
-    public boolean getInReach() {
-        return pollenInReach;
+    public void followTrajectory() {
+        if (driveMode != DriveMode.FOLLOWING_TRAJECTORY) return;
+
+        // Type code here pls
     }
+
 
     public RunCommand fieldCentricCommand() {
         return new RunCommand(this::fieldCentric, this);
     }
 
-    public RunCommand followPollenCommand(){
-        return new RunCommand(this::followPollen, this);
+    public Command followPollenCommand() {
+        return new CommandBase() {
+            {
+                addRequirements(Drivetrain.this);
+            }
+
+            @Override
+            public void initialize() {
+                setDriveMode(DriveMode.FOLLOWING_POLLEN);
+            }
+
+            @Override
+            public void execute() {
+                followPollen();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setDriveMode(DriveMode.MANUAL);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+        };
+    }
+
+    public Command followTrajectoryCommand() {
+        return new CommandBase() {
+            {
+                addRequirements(Drivetrain.this);
+            }
+
+            @Override
+            public void initialize() {
+                setDriveMode(DriveMode.FOLLOWING_TRAJECTORY);
+            }
+
+            @Override
+            public void execute() {
+                followTrajectory();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setDriveMode(DriveMode.MANUAL);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+        };
+    }
+
+    private void setDriveMode(DriveMode mode) {
+        driveMode = mode;
     }
 
     public Command setSlowModeCommand() {
@@ -112,22 +228,47 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Command turnToGoal() {
-        return new TurnToCommand(
-                follower,
-                Math.atan2(
-                    goalPose.y() - follower.pose().y(),
-                    goalPose.x() - follower.pose().x()
-                )
+        return new DeferredCommand(
+                () -> new TurnToCommand(
+                        follower,
+                        Math.atan2(
+                                goalPose.y() - follower.pose().y(),
+                                goalPose.x() - follower.pose().x()
+                        )
+                ),
+                List.of(this)
         );
     }
 
     public Command goToCommand(Pose pose) {
-        return new FollowPathCommand(follower, line(follower.pose(), pose).constant(pose.heading()));
-    } //TODO: fix the logic of switching between this and field centric
+        return new DeferredCommand(
+                () -> {
+                    Pose start = follower.pose();
+
+                    return new FollowPathCommand(
+                            follower,
+                            line(follower.pose(), pose)
+                                    .constant(pose.heading())
+                    );
+                },
+                List.of(this)
+        );
+    }
 
     //Function for future builder of collecting paths for auto
     public Command goToTargetCommand(Pose pose){
         targetsHashSet.remove(pose);
-        return new FollowPathCommand(follower, line(follower.pose(), pose).linear(follower.pose().heading(), pose.heading()));
+        return new DeferredCommand(
+                () -> {
+                    Pose start = follower.pose();
+
+                    return new FollowPathCommand(
+                            follower,
+                            line(follower.pose(), pose)
+                                    .linear(follower.pose().heading(), pose.heading())
+                    );
+                },
+                List.of(this)
+        );
     }
 }

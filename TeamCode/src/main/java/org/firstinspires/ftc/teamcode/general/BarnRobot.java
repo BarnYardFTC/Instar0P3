@@ -3,15 +3,19 @@ package org.firstinspires.ftc.teamcode.general;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.BarnTurret;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 public class BarnRobot {
@@ -21,6 +25,11 @@ public class BarnRobot {
 
     public Drivetrain drive;
     public Intake intake;
+    public Transfer transfer;
+    public Gate frontGate;
+    public Gate backGate;
+    public Shooter frontShooter;
+    public Shooter backShooter;
     public Turret frontTurret;
     public Turret backTurret;
     public BarnTurret barnFrontTurret;
@@ -76,7 +85,11 @@ public class BarnRobot {
                 HARDWARE.DRIVETRAIN_RB.key
         );
         intake = new Intake(opMode.hardwareMap, HARDWARE.INTAKE.key);
-
+        transfer = new Transfer(opMode.hardwareMap, HARDWARE.TRANSFER.key);
+        frontGate = new Gate(opMode.hardwareMap, HARDWARE.FRONT_GATE.key, Servo.Direction.FORWARD); // TODO:Check servo directions
+        backGate = new Gate(opMode.hardwareMap, HARDWARE.BACK_GATE.key, Servo.Direction.FORWARD);
+        frontShooter = new Shooter(opMode.hardwareMap, HARDWARE.SHOOTER_FRONT.key, true); //Define shooter-bullet type position
+        backShooter = new Shooter(opMode.hardwareMap, HARDWARE.SHOOTER_BACK.key, false);
         frontTurret = new Turret(opMode.hardwareMap, HARDWARE.FRONT_TURRET.key, HARDWARE.FRONT_TURRET_ENCODER.key);
         backTurret = new Turret(opMode.hardwareMap, HARDWARE.BACK_TURRET.key, HARDWARE.BACK_TURRET_ENCODER.key);
         barnFrontTurret = new BarnTurret(opMode.hardwareMap, HARDWARE.FRONT_TURRET.key);
