@@ -17,12 +17,15 @@ public class CRTest extends CommandOpMode {
         gamepad = new GamepadEx(this.gamepad1);
         gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(turret.setAngleCommand(20));
         gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(turret.setAngleCommand(340));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(turret.setAngleCommand(0));
+        gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(turret.adjustAngleCommand(10));
+        gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(turret.adjustAngleCommand(-10));
     }
 
     @Override
     public void run() {
         super.run();
-        this.telemetry.addData("Turret", turret.getAngle());
+        this.telemetry.addData(   "Turret", turret.getAngle());
         this.telemetry.update();
     }
 }

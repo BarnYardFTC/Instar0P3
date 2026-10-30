@@ -57,7 +57,7 @@ public class Drivetrain extends SubsystemBase {
 
     private final Pose goalPose = new Pose(47, 130, 0);
 
-    private double speedModifier;
+    public double speedModifier;
 
 
     //TODO: Find min and max tx where we can intake pollens
@@ -239,6 +239,10 @@ public class Drivetrain extends SubsystemBase {
 
     public Command setFastModeCommand() {
         return new InstantCommand(() -> speedModifier = FAST_SPEED, this);
+    }
+
+    public double getDriveSpeedMode(){
+        return speedModifier;
     }
 
     public Command turnToGoal() {

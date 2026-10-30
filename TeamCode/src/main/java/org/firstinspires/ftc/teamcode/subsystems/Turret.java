@@ -20,10 +20,11 @@ public class Turret extends SubsystemBase { //TODO: parallax correction -> if ne
     private static final double GEAR_RATIO = 2.75;
     private static final double MIN_ANGLE = 10;
     private static final double MAX_ANGLE = 350;
+    public static double kP = 0.01, kD = 0.001, kI = 0.0;
 
     public Turret(HardwareMap hwMap, String turretName, String encoderName) {
         servo = new CRServoEx(hwMap, turretName, encoderName, 3.3, AngleUnit.DEGREES, CRServoEx.RunMode.OptimizedPositionalControl);
-        servo.setPIDF(new PIDFCoefficients(0.01, 0.0, 0.001, 0.0));
+        servo.setPIDF(new PIDFCoefficients(kP, kI, kD, 0.0));
     }
 
     private void setAngle(double degrees) {
@@ -56,6 +57,10 @@ public class Turret extends SubsystemBase { //TODO: parallax correction -> if ne
 
     public Command setAngleCommand(double degrees) {
         return new InstantCommand(() -> setAngle(degrees), this);
+    }
+
+    public Command adjustAngleCommand(double deltaDegrees) {
+        return new InstantCommand(() -> setAngle(getAngle() + deltaDegrees), this);
     }
 
     public RunCommand trackPositionCommand(Pose targetPose) {

@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
@@ -18,6 +20,7 @@ public class Shooter extends SubsystemBase {
     private double kV = 0.000176, kS = 0.09, kP = 0.00145;
 
     public static int RPM = 2500;
+    public static int CLOSE_RPM = 1000, MID_RPM = 2000, FAR_RPM = 2500;
 
     private DcMotorEx shooterMotor;
 
@@ -133,6 +136,10 @@ public class Shooter extends SubsystemBase {
         double rawRpm = (v0 * 60.0) / (2 * Math.PI * WHEEL_RADIUS_MM);
 
         return rawRpm / pieceEfficiency;
+    }
+
+    public Command setCustomRPM(int rpm){
+        return new InstantCommand(() -> setMotorRPM(rpm), this);
     }
 
     public boolean isReady() {
