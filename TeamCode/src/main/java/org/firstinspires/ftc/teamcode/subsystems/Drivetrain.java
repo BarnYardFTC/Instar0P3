@@ -97,11 +97,10 @@ public class Drivetrain extends SubsystemBase {
             return;
         }
 
-        powers = ManualDrive.fieldCentric(
+        powers = new DrivePowers(
                 BarnRobot.getInstance().gamepadEx1.getLeftY() * speedModifier,
                 -BarnRobot.getInstance().gamepadEx1.getLeftX() * speedModifier,
-                -BarnRobot.getInstance().gamepadEx1.getRightX() * speedModifier * 0.7,
-                follower.pose().heading()
+                -BarnRobot.getInstance().gamepadEx1.getRightX() * speedModifier * 0.7
         );
         follower.manual(powers);
         follower.update();
@@ -226,7 +225,7 @@ public class Drivetrain extends SubsystemBase {
         };
     }
 
-    private void setDriveMode(DriveMode mode) {
+    public void setDriveMode(DriveMode mode) {
         driveMode = mode;
     }
 
