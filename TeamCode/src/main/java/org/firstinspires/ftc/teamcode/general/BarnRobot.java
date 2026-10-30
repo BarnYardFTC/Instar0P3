@@ -8,7 +8,6 @@ import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.subsystems.BarnTurret;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -32,8 +31,6 @@ public class BarnRobot {
     public Shooter backShooter;
     public Turret frontTurret;
     public Turret backTurret;
-    public BarnTurret barnFrontTurret;
-    public BarnTurret barnBackTurret;
     public Pinpoint pinpoint;
     public Limelight limelight;
 
@@ -86,14 +83,12 @@ public class BarnRobot {
         );
         intake = new Intake(opMode.hardwareMap, HARDWARE.INTAKE.key);
         transfer = new Transfer(opMode.hardwareMap, HARDWARE.TRANSFER.key);
-        frontGate = new Gate(opMode.hardwareMap, HARDWARE.FRONT_GATE.key, Servo.Direction.FORWARD); // TODO:Check servo directions
+        frontGate = new Gate(opMode.hardwareMap, HARDWARE.FRONT_GATE.key, Servo.Direction.FORWARD);
         backGate = new Gate(opMode.hardwareMap, HARDWARE.BACK_GATE.key, Servo.Direction.FORWARD);
-        frontShooter = new Shooter(opMode.hardwareMap, HARDWARE.SHOOTER_FRONT.key, true); //Define shooter-bullet type position
+        frontShooter = new Shooter(opMode.hardwareMap, HARDWARE.SHOOTER_FRONT.key, true);
         backShooter = new Shooter(opMode.hardwareMap, HARDWARE.SHOOTER_BACK.key, false);
         frontTurret = new Turret(opMode.hardwareMap, HARDWARE.FRONT_TURRET.key, HARDWARE.FRONT_TURRET_ENCODER.key);
         backTurret = new Turret(opMode.hardwareMap, HARDWARE.BACK_TURRET.key, HARDWARE.BACK_TURRET_ENCODER.key);
-        barnFrontTurret = new BarnTurret(opMode.hardwareMap, HARDWARE.FRONT_TURRET.key);
-        barnBackTurret = new BarnTurret(opMode.hardwareMap, HARDWARE.BACK_TURRET.key);
     }
 
     public void periodic() {

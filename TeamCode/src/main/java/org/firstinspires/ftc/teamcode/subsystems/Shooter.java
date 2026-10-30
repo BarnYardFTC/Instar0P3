@@ -40,7 +40,7 @@ public class Shooter extends SubsystemBase {
     public static double POLLEN_EFFICIENCY = 0.8;
     public static double NECTAR_EFFICIENCY = 1.0;
 
-    public Shooter(HardwareMap hwMap,  String motorName, boolean shooterMode){ //Mode: true - pollen mode, false - nectar mode
+    public Shooter(HardwareMap hwMap,  String motorName, boolean shooterMode){ //TODO: enum this bullshit
         shooterMotor = hwMap.get(DcMotorEx.class, motorName);
 
         shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);

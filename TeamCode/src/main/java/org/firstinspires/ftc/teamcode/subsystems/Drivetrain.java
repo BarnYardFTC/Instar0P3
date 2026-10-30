@@ -107,6 +107,18 @@ public class Drivetrain extends SubsystemBase {
         follower.update();
     }
 
+    private void drive() {
+        GamepadEx gamepadEx = BarnRobot.getInstance().gamepadEx1;
+        double lf_pw = gamepadEx.getLeftY() - gamepadEx.getLeftX() + gamepadEx.getRightX();
+        double rf_pw = gamepadEx.getLeftY() + gamepadEx.getLeftX() - gamepadEx.getRightX();
+        double lb_pw = gamepadEx.getLeftY() + gamepadEx.getLeftX() + gamepadEx.getRightX();
+        double rb_pw = gamepadEx.getLeftY() - gamepadEx.getLeftX() - gamepadEx.getRightX();
+        leftFront.setPower(lf_pw * speedModifier);
+        rightFront.setPower(rf_pw * speedModifier);
+        leftBack.setPower(lb_pw * speedModifier);
+        rightBack.setPower(rb_pw * speedModifier);
+    }
+
     //Converts robot position and target position from limelight view to the target's field position
 //    public Pose targetToField(Pose robotPose, Pose2D targetPoseRobotSpace){
 //        Pose targetPose = new Pose(targetPoseRobotSpace.getX(DistanceUnit.INCH), targetPoseRobotSpace.getY(DistanceUnit.INCH));
@@ -123,7 +135,6 @@ public class Drivetrain extends SubsystemBase {
 //        return new Pose(fieldX, fieldY);
 //    }
 
-    Pose pollenPose;
     public void followPollen() {
         if (driveMode != DriveMode.FOLLOWING_POLLEN) {
             BarnRobot.getInstance().telemetry.addData("Drive Mode", "Not Following Pollen");
@@ -217,6 +228,10 @@ public class Drivetrain extends SubsystemBase {
 
     private void setDriveMode(DriveMode mode) {
         driveMode = mode;
+    }
+
+    public Command robotCentricCommand() {
+        return new InstantCommand(this::drive, this);
     }
 
     public Command setSlowModeCommand() {

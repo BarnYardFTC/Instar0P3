@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.general.BarnRobot;
 public class Turret extends SubsystemBase { //TODO: parallax correction -> if needed <-
 
     private final CRServoEx servo;
+    private double targetAngleDegrees = 180.0;
 
     private static final double GEAR_RATIO = 2.75;
     private static final double MIN_ANGLE = 10;
@@ -22,18 +23,14 @@ public class Turret extends SubsystemBase { //TODO: parallax correction -> if ne
 
     public Turret(HardwareMap hwMap, String turretName, String encoderName) {
         servo = new CRServoEx(hwMap, turretName, encoderName, 3.3, AngleUnit.DEGREES, CRServoEx.RunMode.OptimizedPositionalControl);
-
         servo.setPIDF(new PIDFCoefficients(0.01, 0.0, 0.001, 0.0));
-        setAngle(180);
     }
 
-    public void setAngle(double degrees) {
-        double clampedDegrees = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, degrees));
-        int targetPosition = (int) Math.round(clampedDegrees * GEAR_RATIO);
-        servo.setTargetPosition(targetPosition);
+    private void setAngle(double degrees) {
+        targetAngleDegrees = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, degrees));
     }
 
-    public void trackPosition(Pose targetPose) {
+    private void trackPosition(Pose targetPose) {
         Pose botPose = BarnRobot.getInstance().drive.follower.pose();
         double dx = targetPose.x() - botPose.x();
         double dy = targetPose.y() - botPose.y();
@@ -46,6 +43,15 @@ public class Turret extends SubsystemBase { //TODO: parallax correction -> if ne
 
         double targetDegrees = 180.0 + Math.toDegrees(relativeAngleRad);
         setAngle(targetDegrees);
+    }
+
+    public double getAngle() {
+        return servo.getAbsoluteEncoder().getCurrentPosition();
+    }
+
+    @Override
+    public void periodic() {
+        servo.set(targetAngleDegrees * GEAR_RATIO);
     }
 
     public Command setAngleCommand(double degrees) {
