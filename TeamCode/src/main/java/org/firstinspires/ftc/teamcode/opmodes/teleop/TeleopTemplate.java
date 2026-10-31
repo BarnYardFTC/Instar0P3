@@ -1,18 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 
-import com.bylazar.gamepad.Gamepad;
-import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
-import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.button.Trigger;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.photon.PhotonCore;
 
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import java.util.ArrayList;
@@ -22,17 +18,16 @@ public class TeleopTemplate {
     private static ArrayList<String> binds = new ArrayList<>();
     private static final BarnRobot robot = BarnRobot.getInstance();
 
-    public static void apply(OpMode opMode, Drivetrain.DriveMode driveMode) {
+    public static void apply(OpMode opMode) {
         PhotonCore.enable();
         robot.init(opMode);
-        robot.drive.setDriveMode(driveMode);
         robot.frontShooter.setDefaultCommand(robot.frontShooter.operateShooter());
         robot.backShooter.setDefaultCommand(robot.backShooter.operateShooter());
         robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
         // Binds
         triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Intake", robot.intake.enableCommand(), robot.intake.disableCommand());
         triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Transfer", robot.transfer.enableCommand(), robot.transfer.disableCommand());
-        holdBind(GamepadKeys.Button.LEFT_STICK_BUTTON, "Slow Mode", robot.drive.setSlowModeCommand(), robot.drive.setFastModeCommand());
+        holdBind(GamepadKeys.Button.LEFT_STICK_BUTTON, "Change speed", robot.drive.setSlowModeCommand(), robot.drive.setFastModeCommand());
         toggleBind(GamepadKeys.Button.DPAD_UP, "Gate",
                 new ParallelCommandGroup(robot.backGate.openCommand(), robot.frontGate.openCommand()),
                 new ParallelCommandGroup(robot.backGate.closeCommand(), robot.frontGate.closeCommand())
@@ -66,12 +61,8 @@ public class TeleopTemplate {
         binds.add(button.toString() + ": " + description);
     }
 
-    public static void keyBind(GamepadKeys.Button button, String description, Command command1) {
-        robot.gamepadEx1.getGamepadButton(button)
-                .whenPressed(
-                        command1
-                );
-        binds.add(button.toString() + ": " + description);
+    public static void keyBind(GamepadKeys.Button button, String description, Command command) {
+        toggleBind(button, description, command, command); // compromise: Peter keeps his redundant function, I get to mock him
     }
 
     public static void holdBind(GamepadKeys.Button button, String description, Command command1, Command command2) {
@@ -98,8 +89,6 @@ public class TeleopTemplate {
 
     public static void periodic(){
         binds.forEach(robot.telemetry::addLine);
-
-        robot.telemetry.addData("Speed modifier: ", robot.drive.getDriveSpeedMode());
 
         robot.telemetry.addLine("________ SHOOTER ________");
         robot.telemetry.addData("Front shooter speed: ", robot.frontShooter.getRPM());

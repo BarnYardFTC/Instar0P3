@@ -13,7 +13,7 @@ public class MainTeleop extends CommandOpMode {
 
     @Override
     public void initialize() {
-        TeleopTemplate.apply(this, Drivetrain.DriveMode.MANUAL);
+        TeleopTemplate.apply(this);
     }
 
     @Override

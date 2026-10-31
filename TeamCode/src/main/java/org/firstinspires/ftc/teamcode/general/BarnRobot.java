@@ -34,7 +34,7 @@ public class BarnRobot {
     public Pinpoint pinpoint;
     public Limelight limelight;
 
-    public enum HARDWARE {
+    public enum Hardware {
         DRIVETRAIN_LB("leftBackDrivetrain"),
         DRIVETRAIN_LF("leftFrontDrivetrain"),
         DRIVETRAIN_RB("rightBackDrivetrain"),
@@ -54,7 +54,7 @@ public class BarnRobot {
 
         public final String key;
 
-        HARDWARE(String key) {
+        Hardware(String key) {
             this.key = key;
         }
     }
@@ -72,23 +72,23 @@ public class BarnRobot {
         gamepadEx1 = new GamepadEx(opMode.gamepad1);
         telemetry = opMode.telemetry;
 
-        pinpoint = new Pinpoint(opMode.hardwareMap, HARDWARE.PINPOINT.key);
-        limelight = new Limelight(opMode.hardwareMap, HARDWARE.LIMELIGHT.key);
+        pinpoint = new Pinpoint(opMode.hardwareMap, Hardware.PINPOINT.key);
+        limelight = new Limelight(opMode.hardwareMap, Hardware.LIMELIGHT.key);
         drive = new Drivetrain(
                 opMode.hardwareMap,
-                HARDWARE.DRIVETRAIN_LF.key,
-                HARDWARE.DRIVETRAIN_RF.key,
-                HARDWARE.DRIVETRAIN_LB.key,
-                HARDWARE.DRIVETRAIN_RB.key
+                Hardware.DRIVETRAIN_LF.key,
+                Hardware.DRIVETRAIN_RF.key,
+                Hardware.DRIVETRAIN_LB.key,
+                Hardware.DRIVETRAIN_RB.key
         );
-        intake = new Intake(opMode.hardwareMap, HARDWARE.INTAKE.key);
-        transfer = new Transfer(opMode.hardwareMap, HARDWARE.TRANSFER.key);
-        frontGate = new Gate(opMode.hardwareMap, HARDWARE.FRONT_GATE.key, Servo.Direction.FORWARD);
-        backGate = new Gate(opMode.hardwareMap, HARDWARE.BACK_GATE.key, Servo.Direction.FORWARD);
-        frontShooter = new Shooter(opMode.hardwareMap, HARDWARE.SHOOTER_FRONT.key, true);
-        backShooter = new Shooter(opMode.hardwareMap, HARDWARE.SHOOTER_BACK.key, false);
-        frontTurret = new Turret(opMode.hardwareMap, HARDWARE.FRONT_TURRET.key, HARDWARE.FRONT_TURRET_ENCODER.key);
-        backTurret = new Turret(opMode.hardwareMap, HARDWARE.BACK_TURRET.key, HARDWARE.BACK_TURRET_ENCODER.key);
+        intake = new Intake(opMode.hardwareMap, Hardware.INTAKE.key);
+        transfer = new Transfer(opMode.hardwareMap, Hardware.TRANSFER.key);
+        frontGate = new Gate(opMode.hardwareMap, Hardware.FRONT_GATE.key, Servo.Direction.FORWARD);
+        backGate = new Gate(opMode.hardwareMap, Hardware.BACK_GATE.key, Servo.Direction.FORWARD);
+        frontShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_FRONT.key, true);
+        backShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_BACK.key, false);
+        frontTurret = new Turret(opMode.hardwareMap, Hardware.FRONT_TURRET.key, Hardware.FRONT_TURRET_ENCODER.key);
+        backTurret = new Turret(opMode.hardwareMap, Hardware.BACK_TURRET.key, Hardware.BACK_TURRET_ENCODER.key);
     }
 
     public void periodic() {
