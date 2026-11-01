@@ -61,8 +61,12 @@ public class TeleopTemplate {
         binds.add(button.toString() + ": " + description);
     }
 
-    public static void keyBind(GamepadKeys.Button button, String description, Command command) {
-        toggleBind(button, description, command, command); // compromise: Peter keeps his redundant function, I get to mock him
+    public static void keyBind(GamepadKeys.Button button, String description, Command command1) {
+        robot.gamepadEx1.getGamepadButton(button)
+                .whenPressed(
+                        command1
+                );
+        binds.add(button.toString() + ": " + description);
     }
 
     public static void holdBind(GamepadKeys.Button button, String description, Command command1, Command command2) {
