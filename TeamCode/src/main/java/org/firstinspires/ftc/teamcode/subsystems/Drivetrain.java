@@ -117,7 +117,7 @@ public class Drivetrain extends SubsystemBase {
         rightBack.setPower(rbPower * speedModifier);
     }
 
-       public void followPollen() {
+    public void followPollen() {
         Limelight limelight = BarnRobot.getInstance().limelight;
         Pose currentPose = follower.pose();
 
