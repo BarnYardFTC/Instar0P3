@@ -72,8 +72,8 @@ public class BarnRobot {
         gamepadEx1 = new GamepadEx(opMode.gamepad1);
         telemetry = opMode.telemetry;
 
-        pinpoint = new Pinpoint(opMode.hardwareMap, Hardware.PINPOINT.key);
-        limelight = new Limelight(opMode.hardwareMap, Hardware.LIMELIGHT.key);
+//        pinpoint = new Pinpoint(opMode.hardwareMap, Hardware.PINPOINT.key);
+//        limelight = new Limelight(opMode.hardwareMap, Hardware.LIMELIGHT.key);
         drive = new Drivetrain(
                 opMode.hardwareMap,
                 Hardware.DRIVETRAIN_LF.key,
@@ -83,17 +83,17 @@ public class BarnRobot {
         );
         intake = new Intake(opMode.hardwareMap, Hardware.INTAKE.key);
         transfer = new Transfer(opMode.hardwareMap, Hardware.TRANSFER.key);
-        frontGate = new Gate(opMode.hardwareMap, Hardware.FRONT_GATE.key, Servo.Direction.FORWARD);
-        backGate = new Gate(opMode.hardwareMap, Hardware.BACK_GATE.key, Servo.Direction.FORWARD);
-        frontShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_FRONT.key, true);
+//        frontGate = new Gate(opMode.hardwareMap, Hardware.FRONT_GATE.key);
+        backGate = new Gate(opMode.hardwareMap, Hardware.BACK_GATE.key);
+//        frontShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_FRONT.key, true);
         backShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_BACK.key, false);
-        frontTurret = new Turret(opMode.hardwareMap, Hardware.FRONT_TURRET.key, Hardware.FRONT_TURRET_ENCODER.key);
+//        frontTurret = new Turret(opMode.hardwareMap, Hardware.FRONT_TURRET.key, Hardware.FRONT_TURRET_ENCODER.key);
         backTurret = new Turret(opMode.hardwareMap, Hardware.BACK_TURRET.key, Hardware.BACK_TURRET_ENCODER.key);
     }
 
     public void periodic() {
         telemetry.update();
-        drive.follower.update();
+//        drive.follower.update();
     }
 
     public boolean sticksUsed() {

@@ -21,34 +21,34 @@ public class TeleopTemplate {
     public static void apply(OpMode opMode) {
         PhotonCore.enable();
         robot.init(opMode);
-        robot.frontShooter.setDefaultCommand(robot.frontShooter.operateShooter());
+//        robot.frontShooter.setDefaultCommand(robot.frontShooter.operateShooter());
         robot.backShooter.setDefaultCommand(robot.backShooter.operateShooter());
-        robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
+        robot.drive.setDefaultCommand(robot.drive.robotCentricCommand());
         // Binds
         triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Intake", robot.intake.enableCommand(), robot.intake.disableCommand());
-        triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Transfer", robot.transfer.enableCommand(), robot.transfer.disableCommand());
+        triggerBind(GamepadKeys.Trigger.LEFT_TRIGGER, "Transfer", robot.transfer.enableCommand(), robot.transfer.disableCommand());
         holdBind(GamepadKeys.Button.LEFT_STICK_BUTTON, "Change speed", robot.drive.setSlowModeCommand(), robot.drive.setFastModeCommand());
-        toggleBind(GamepadKeys.Button.DPAD_UP, "Gate",
-                new ParallelCommandGroup(robot.backGate.openCommand(), robot.frontGate.openCommand()),
-                new ParallelCommandGroup(robot.backGate.closeCommand(), robot.frontGate.closeCommand())
+        toggleBind(GamepadKeys.Button.DPAD_UP, "Gate", robot.backGate.openCommand(), robot.backGate.closeCommand()
+//                new ParallelCommandGroup(robot.backGate.openCommand(), robot.frontGate.openCommand()),
+//                new ParallelCommandGroup(robot.backGate.closeCommand(), robot.frontGate.closeCommand())
         );
-        keyBind(GamepadKeys.Button.A, "Shooter speed: Low",
-                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.CLOSE_RPM), robot.backShooter.setCustomRPM(Shooter.CLOSE_RPM))
+        keyBind(GamepadKeys.Button.A, "Shooter speed: Low", robot.backShooter.setCustomRPM(Shooter.CLOSE_RPM)
+//                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.CLOSE_RPM), robot.backShooter.setCustomRPM(Shooter.CLOSE_RPM))
         );
-        keyBind(GamepadKeys.Button.B, "Shooter speed: Mid",
-                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.MID_RPM), robot.backShooter.setCustomRPM(Shooter.MID_RPM))
+        keyBind(GamepadKeys.Button.B, "Shooter speed: Mid", robot.backShooter.setCustomRPM(Shooter.MID_RPM)
+//                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.MID_RPM), robot.backShooter.setCustomRPM(Shooter.MID_RPM))
         );
-        keyBind(GamepadKeys.Button.Y, "Shooter speed: Fast",
-                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.FAR_RPM), robot.backShooter.setCustomRPM(Shooter.FAR_RPM))
+        keyBind(GamepadKeys.Button.Y, "Shooter speed: Fast", robot.backShooter.setCustomRPM(Shooter.FAR_RPM)
+//                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.FAR_RPM), robot.backShooter.setCustomRPM(Shooter.FAR_RPM))
         );
-        keyBind(GamepadKeys.Button.X, "Stop Shooter",
-                new ParallelCommandGroup(robot.frontShooter.turnOff(), robot.backShooter.turnOff())
+        keyBind(GamepadKeys.Button.X, "Stop Shooter", robot.backShooter.turnOff()
+//                new ParallelCommandGroup(robot.frontShooter.turnOff(), robot.backShooter.turnOff())
         );
         keyBind(GamepadKeys.Button.RIGHT_BUMPER, "Turn Turret Right",
-                new ParallelCommandGroup(robot.frontTurret.adjustAngleCommand(10))
+                new ParallelCommandGroup(robot.backTurret.adjustAngleCommand(10))
         );
         keyBind(GamepadKeys.Button.LEFT_BUMPER, "Turn Turret Left",
-            new ParallelCommandGroup(robot.frontTurret.adjustAngleCommand(-10))
+            new ParallelCommandGroup(robot.backTurret.adjustAngleCommand(-10))
         );
     }
 
@@ -94,16 +94,17 @@ public class TeleopTemplate {
     public static void periodic(){
         binds.forEach(robot.telemetry::addLine);
 
+        robot.telemetry.addData("Robot speed: ", robot.drive.speedModifier);
         robot.telemetry.addLine("________ SHOOTER ________");
-        robot.telemetry.addData("Front shooter speed: ", robot.frontShooter.getRPM());
+//        robot.telemetry.addData("Front shooter speed: ", robot.frontShooter.getRPM());
         robot.telemetry.addData("Back shooter speed: ", robot.backShooter.getRPM());
 
         robot.telemetry.addLine("________ TURRET ________");
-        robot.telemetry.addData("Front turret angle: ", robot.frontTurret.getAngle());
+//        robot.telemetry.addData("Front turret angle: ", robot.frontTurret.getAngle());
         robot.telemetry.addData("Back turret angle: ", robot.backTurret.getAngle());
 
         robot.telemetry.addLine("________ GATE ________");
-        robot.telemetry.addData("Front gate position: ", robot.frontGate.getGatePosition());
+//        robot.telemetry.addData("Front gate position: ", robot.frontGate.getGatePosition());
         robot.telemetry.addData("Back gate position: ", robot.backGate.getGatePosition());
 
         robot.periodic();

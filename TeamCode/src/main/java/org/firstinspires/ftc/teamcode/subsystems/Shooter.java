@@ -151,20 +151,20 @@ public class Shooter extends SubsystemBase {
         setMotorRPM(RPM);
     }
 
-    public void setShooterSpeedDependsOnDist() {
-        double currentX = BarnRobot.getInstance().drive.follower.pose().x();
-        double currentY = BarnRobot.getInstance().drive.follower.pose().y();
-        if(shooterMode) setMotorRPM(calculatePollenRPM(currentX, currentY));
-        else setMotorRPM(calculateNectarRPM(currentX, currentY));
-    }
+//    public void setShooterSpeedDependsOnDist() {
+//        double currentX = BarnRobot.getInstance().drive.follower.pose().x();
+//        double currentY = BarnRobot.getInstance().drive.follower.pose().y();
+//        if(shooterMode) setMotorRPM(calculatePollenRPM(currentX, currentY));
+//        else setMotorRPM(calculateNectarRPM(currentX, currentY));
+//    }
 
     public RunCommand operateShooter() {
         return new RunCommand(this::setShooterSpeed, this);
     }
 
-    public RunCommand operateShooterDependsOnDist() {
-        return new RunCommand(this::setShooterSpeedDependsOnDist, this);
-    }
+//    public RunCommand operateShooterDependsOnDist() {
+//        return new RunCommand(this::setShooterSpeedDependsOnDist, this);
+//    }
 
     public RunCommand turnOff() {
         return new RunCommand(() -> setMotorRPM(0), this);

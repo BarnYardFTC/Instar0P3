@@ -46,7 +46,7 @@ public class Drivetrain extends SubsystemBase {
     private final DcMotor leftBack;
     private final DcMotor rightBack;
 
-    public final Follower follower;
+//    public final Follower follower;
 
     // ==========================================
     // State Variables
@@ -75,7 +75,7 @@ public class Drivetrain extends SubsystemBase {
         initMotor(DcMotorSimple.Direction.REVERSE, leftBack);
         initMotor(DcMotorSimple.Direction.FORWARD, rightBack);
 
-        follower = Constants.create(hwMap);
+//        follower = Constants.create(hwMap);
     }
 
     private void initMotor(DcMotorSimple.Direction direction, DcMotor motor) {
@@ -89,18 +89,18 @@ public class Drivetrain extends SubsystemBase {
     // Drive Methods
     // ==========================================
 
-    public void fieldCentric() {
-        GamepadEx gamepad = BarnRobot.getInstance().gamepadEx1;
-        powers = new DrivePowers(
-                gamepad.getLeftY() * speedModifier,
-                -gamepad.getLeftX() * speedModifier,
-                -gamepad.getRightX() * speedModifier * 0.7
-        );
-        follower.manual(powers);
-        follower.update();
-    }
+//    public void fieldCentric() {
+//        GamepadEx gamepad = BarnRobot.getInstance().gamepadEx1;
+//        powers = new DrivePowers(
+//                gamepad.getLeftY() * speedModifier,
+//                -gamepad.getLeftX() * speedModifier,
+//                -gamepad.getRightX() * speedModifier * 0.7
+//        );
+//        follower.manual(powers);
+//        follower.update();
+//    }
 
-    public void robotCentric() {
+    private void robotCentric() {
         GamepadEx gamepad = BarnRobot.getInstance().gamepadEx1;
         double leftY = gamepad.getLeftY();
         double leftX = gamepad.getLeftX();
@@ -117,36 +117,36 @@ public class Drivetrain extends SubsystemBase {
         rightBack.setPower(rbPower * speedModifier);
     }
 
-    public void followPollen() {
-        Limelight limelight = BarnRobot.getInstance().limelight;
-        Pose currentPose = follower.pose();
-
-        boolean inTargetZone = currentPose.x() + 5 > 72 && currentPose.heading() < 65 && currentPose.heading() > -65;
-
-        if (!limelight.hasValidTarget() || inTargetZone) {
-            powers = new DrivePowers(0, 0, 0.3);
-        } else {
-            double tx = limelight.getTx();
-            double turn = 0.0;
-            double forward = 0.3;
-            if (Math.abs(tx) > 1.2) {
-                turn = tx * -0.015;
-                turn = Math.max(-0.35, Math.min(0.35, turn));
-            }
-            powers = new DrivePowers(-1 * forward, 0, turn);
-        }
-
-        follower.manual(powers);
-        follower.update();
-    }
+//    public void followPollen() {
+//        Limelight limelight = BarnRobot.getInstance().limelight;
+//        Pose currentPose = follower.pose();
+//
+//        boolean inTargetZone = currentPose.x() + 5 > 72 && currentPose.heading() < 65 && currentPose.heading() > -65;
+//
+//        if (!limelight.hasValidTarget() || inTargetZone) {
+//            powers = new DrivePowers(0, 0, 0.3);
+//        } else {
+//            double tx = limelight.getTx();
+//            double turn = 0.0;
+//            double forward = 0.3;
+//            if (Math.abs(tx) > 1.2) {
+//                turn = tx * -0.015;
+//                turn = Math.max(-0.35, Math.min(0.35, turn));
+//            }
+//            powers = new DrivePowers(-1 * forward, 0, turn);
+//        }
+//
+//        follower.manual(powers);
+//        follower.update();
+//    }
 
     // ==========================================
     // Command Factories
     // ==========================================
 
-    public RunCommand fieldCentricCommand() {
-        return new RunCommand(this::fieldCentric, this);
-    }
+//    public RunCommand fieldCentricCommand() {
+//        return new RunCommand(this::fieldCentric, this);
+//    }
 
     public Command robotCentricCommand() {
         return new RunCommand(this::robotCentric, this);
@@ -160,37 +160,37 @@ public class Drivetrain extends SubsystemBase {
         return new InstantCommand(() -> speedModifier = FAST_SPEED, this);
     }
 
-    public Command turnToGoal() {
-        return new DeferredCommand(
-                () -> new TurnToCommand(
-                        follower,
-                        Math.atan2(
-                                goalPose.y() - follower.pose().y(),
-                                goalPose.x() - follower.pose().x()
-                        )
-                ),
-                List.of(this)
-        );
-    }
+//    public Command turnToGoal() {
+//        return new DeferredCommand(
+//                () -> new TurnToCommand(
+//                        follower,
+//                        Math.atan2(
+//                                goalPose.y() - follower.pose().y(),
+//                                goalPose.x() - follower.pose().x()
+//                        )
+//                ),
+//                List.of(this)
+//        );
+//    }
 
-    public Command goToCommand(Pose pose) {
-        return new DeferredCommand(
-                () -> new FollowPathCommand(
-                        follower,
-                        line(follower.pose(), pose).constant(pose.heading())
-                ),
-                List.of(this)
-        );
-    }
+//    public Command goToCommand(Pose pose) {
+//        return new DeferredCommand(
+//                () -> new FollowPathCommand(
+//                        follower,
+//                        line(follower.pose(), pose).constant(pose.heading())
+//                ),
+//                List.of(this)
+//        );
+//    }
 
-    public Command goToTargetCommand(Pose pose) {
-        targetsHashSet.remove(pose);
-        return new DeferredCommand(
-                () -> new FollowPathCommand(
-                        follower,
-                        line(follower.pose(), pose).linear(follower.pose().heading(), pose.heading())
-                ),
-                List.of(this)
-        );
-    }
+//    public Command goToTargetCommand(Pose pose) {
+//        targetsHashSet.remove(pose);
+//        return new DeferredCommand(
+//                () -> new FollowPathCommand(
+//                        follower,
+//                        line(follower.pose(), pose).linear(follower.pose().heading(), pose.heading())
+//                ),
+//                List.of(this)
+//        );
+//    }
 }

@@ -13,11 +13,11 @@ public class CRTest extends CommandOpMode {
     GamepadEx gamepad;
     @Override
     public void initialize() {
-        turret = new Turret(this.hardwareMap, "turret", "encoder");
+        turret = new Turret(this.hardwareMap, "backTurret", "backTurretEncoder");
         gamepad = new GamepadEx(this.gamepad1);
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(turret.setAngleCommand(20));
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(turret.setAngleCommand(340));
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(turret.setAngleCommand(0));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(turret.setAngleCommand(0));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(turret.setAngleCommand(360));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(turret.setAngleCommand(180));
         gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(turret.adjustAngleCommand(10));
         gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(turret.adjustAngleCommand(-10));
     }

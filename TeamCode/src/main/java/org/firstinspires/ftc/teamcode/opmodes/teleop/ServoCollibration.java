@@ -1,25 +1,38 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.bylazar.configurables.PanelsConfigurables;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 
-import org.firstinspires.ftc.teamcode.general.BarnRobot;
+import org.firstinspires.ftc.teamcode.subsystems.Gate;
 
 @TeleOp(name = "Servo calibration", group = "test")
 public class ServoCollibration extends CommandOpMode {
-
-    BarnRobot robot = BarnRobot.getInstance();
+    Gate frontGate;
 
     @Override
     public void initialize() {
-        robot.init(this);
+        frontGate = new Gate(hardwareMap, "backGate");
+    }
+
+    @Override
+    public void initialize_loop() {
+        frontGate.setServoPos();
+        updateTelemetry();
     }
 
     @Override
     public void run() {
         super.run();
-        robot.frontGate.setServoPosCommand();
-        robot.backGate.setServoPosCommand();
-        robot.periodic();
+        frontGate.setServoPos();
+        updateTelemetry();
+    }
+
+    private void updateTelemetry() {
+        telemetry.addData("Status", opModeIsActive() ? "Running" : "Init (ready)");
+        telemetry.addData("servoTestPos (in Gate)", Gate.servoTestPos);
+        telemetry.addData("Servo Position", frontGate.getServoPos());
+        telemetry.update();
     }
 }

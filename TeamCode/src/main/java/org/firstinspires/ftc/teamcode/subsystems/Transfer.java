@@ -26,4 +26,8 @@ public class Transfer extends SubsystemBase {
         return new InstantCommand(() -> transferMotor.setPower(0), this);
     }
 
+    public Command reverseCommand(){
+        return new InstantCommand(() -> transferMotor.setPower(-1), this);
+    }
+
 }
