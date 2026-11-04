@@ -23,7 +23,7 @@ public class TeleopTemplate {
         robot.init(opMode);
 //        robot.frontShooter.setDefaultCommand(robot.frontShooter.operateShooter());
         robot.backShooter.setDefaultCommand(robot.backShooter.operateShooter());
-        robot.drive.setDefaultCommand(robot.drive.robotCentricCommand());
+        robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
         // Binds
         triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Intake", robot.intake.enableCommand(), robot.intake.disableCommand());
         triggerBind(GamepadKeys.Trigger.LEFT_TRIGGER, "Transfer", robot.transfer.enableCommand(), robot.transfer.disableCommand());
@@ -32,13 +32,13 @@ public class TeleopTemplate {
 //                new ParallelCommandGroup(robot.backGate.openCommand(), robot.frontGate.openCommand()),
 //                new ParallelCommandGroup(robot.backGate.closeCommand(), robot.frontGate.closeCommand())
         );
-        keyBind(GamepadKeys.Button.A, "Shooter speed: Low", robot.backShooter.setCustomRPM(Shooter.CLOSE_RPM)
+        keyBind(GamepadKeys.Button.A, "Shooter speed: Low", robot.backShooter.setCustomRPMCommand(Shooter.CLOSE_RPM)
 //                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.CLOSE_RPM), robot.backShooter.setCustomRPM(Shooter.CLOSE_RPM))
         );
-        keyBind(GamepadKeys.Button.B, "Shooter speed: Mid", robot.backShooter.setCustomRPM(Shooter.MID_RPM)
+        keyBind(GamepadKeys.Button.B, "Shooter speed: Mid", robot.backShooter.setCustomRPMCommand(Shooter.MID_RPM)
 //                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.MID_RPM), robot.backShooter.setCustomRPM(Shooter.MID_RPM))
         );
-        keyBind(GamepadKeys.Button.Y, "Shooter speed: Fast", robot.backShooter.setCustomRPM(Shooter.FAR_RPM)
+        keyBind(GamepadKeys.Button.Y, "Shooter speed: Fast", robot.backShooter.setCustomRPMCommand(Shooter.FAR_RPM)
 //                new ParallelCommandGroup(robot.frontShooter.setCustomRPM(Shooter.FAR_RPM), robot.backShooter.setCustomRPM(Shooter.FAR_RPM))
         );
         keyBind(GamepadKeys.Button.X, "Stop Shooter", robot.backShooter.turnOff()

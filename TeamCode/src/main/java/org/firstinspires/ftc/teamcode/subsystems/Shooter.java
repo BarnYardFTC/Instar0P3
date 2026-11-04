@@ -10,8 +10,6 @@ import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
-import org.firstinspires.ftc.teamcode.general.BarnRobot;
-
 @Configurable
 public class Shooter extends SubsystemBase {
     private static final double TICKS_PER_REVOLUTION = 28;
@@ -138,8 +136,12 @@ public class Shooter extends SubsystemBase {
         return rawRpm / pieceEfficiency;
     }
 
-    public Command setCustomRPM(int rpm){
-        return new InstantCommand(() -> setMotorRPM(rpm), this);
+    public void setCustomRPM(int rpm){
+        RPM = rpm;
+    }
+
+    public Command setCustomRPMCommand(int rpm){
+        return new InstantCommand(() -> setCustomRPM(rpm), this);
     }
 
     public boolean isReady() {

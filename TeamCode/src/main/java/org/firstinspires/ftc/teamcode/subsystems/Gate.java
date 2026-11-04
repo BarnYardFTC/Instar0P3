@@ -14,6 +14,7 @@ public class Gate extends SubsystemBase {
     public static double CLOSE_POS = 0.9;
     public static double OPEN_POS = 0.7;
     public static double servoTestPos = 0.9;
+    public double servoPos = 0.9;
     public boolean isOpened = false;
 
     public Gate(HardwareMap hwMap, String frontServoName){
@@ -24,17 +25,11 @@ public class Gate extends SubsystemBase {
 
     @Override
     public void periodic() {
-        setServoPos();
+        gateServo.setPosition(servoPos);
     }
 
     public void setServoPos(){
         double rawPos = servoTestPos > 1.0 ? servoTestPos / 180.0 : servoTestPos;
-        double targetPos = Math.max(0.0, Math.min(1.0, rawPos));
-        gateServo.setPosition(targetPos);
-    }
-
-    public void setServoPos(double pos){
-        double rawPos = pos > 1.0 ? pos / 180.0 : pos;
         double targetPos = Math.max(0.0, Math.min(1.0, rawPos));
         gateServo.setPosition(targetPos);
     }
@@ -44,12 +39,12 @@ public class Gate extends SubsystemBase {
     }
 
     public void setOpen(){
-        gateServo.setPosition(OPEN_POS);
+        servoPos = OPEN_POS;
         isOpened = true;
     }
 
     public void setClose(){
-        gateServo.setPosition(CLOSE_POS);
+        servoPos = CLOSE_POS;
         isOpened = false;
     }
 
@@ -63,10 +58,5 @@ public class Gate extends SubsystemBase {
 
     public Command openCommand(){
         return new InstantCommand(this::setOpen, this);
-    }
-
-    public Command setServoPosCommand(){
-        setServoPos();
-        return new InstantCommand(this::setServoPos, this);
     }
 }

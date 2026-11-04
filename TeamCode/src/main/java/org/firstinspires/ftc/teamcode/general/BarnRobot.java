@@ -72,7 +72,7 @@ public class BarnRobot {
         gamepadEx1 = new GamepadEx(opMode.gamepad1);
         telemetry = opMode.telemetry;
 
-//        pinpoint = new Pinpoint(opMode.hardwareMap, Hardware.PINPOINT.key);
+        pinpoint = new Pinpoint(opMode.hardwareMap, Hardware.PINPOINT.key);
 //        limelight = new Limelight(opMode.hardwareMap, Hardware.LIMELIGHT.key);
         drive = new Drivetrain(
                 opMode.hardwareMap,
@@ -93,7 +93,7 @@ public class BarnRobot {
 
     public void periodic() {
         telemetry.update();
-//        drive.follower.update();
+        drive.follower.update();
     }
 
     public boolean sticksUsed() {
