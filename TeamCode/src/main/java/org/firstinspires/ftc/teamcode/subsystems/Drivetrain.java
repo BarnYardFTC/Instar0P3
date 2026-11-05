@@ -148,6 +148,10 @@ public class Drivetrain extends SubsystemBase {
         return new RunCommand(this::fieldCentric, this);
     }
 
+    public RunCommand followPollenCommand() {
+        return new RunCommand(this::followPollen, this);
+    }
+
     public Command robotCentricCommand() {
         return new RunCommand(this::robotCentric, this);
     }

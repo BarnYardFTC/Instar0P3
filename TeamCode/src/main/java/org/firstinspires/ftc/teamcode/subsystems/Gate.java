@@ -11,15 +11,19 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 public class Gate extends SubsystemBase {
 
     private final Servo gateServo;
-    public static double CLOSE_POS = 0.9;
-    public static double OPEN_POS = 0.7;
+    public static double CLOSE_POS;
+    public static double OPEN_POS;
     public static double servoTestPos = 0.9;
-    public double servoPos = 0.9;
+    public static double servoPos = 0.9;
     public boolean isOpened = false;
 
-    public Gate(HardwareMap hwMap, String frontServoName){
+
+
+    public Gate(HardwareMap hwMap, String frontServoName, double closePos, double openPos){
         gateServo = hwMap.get(Servo.class, frontServoName);
         gateServo.setDirection(Servo.Direction.FORWARD);
+        OPEN_POS = openPos;
+        CLOSE_POS = closePos;
         setClose();
     }
 
@@ -28,10 +32,8 @@ public class Gate extends SubsystemBase {
         gateServo.setPosition(servoPos);
     }
 
-    public void setServoPos(){
-        double rawPos = servoTestPos > 1.0 ? servoTestPos / 180.0 : servoTestPos;
-        double targetPos = Math.max(0.0, Math.min(1.0, rawPos));
-        gateServo.setPosition(targetPos);
+    public void setServoPos(double pos){
+        servoPos = pos;
     }
 
     public double getServoPos(){

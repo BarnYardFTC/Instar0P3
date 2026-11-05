@@ -13,7 +13,7 @@ public class MainTeleop extends CommandOpMode {
 
     @Override
     public void initialize() {
-        TeleopTemplate.apply(this);
+        TeleopTemplate.apply(this, true);
     }
 
     @Override

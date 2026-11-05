@@ -13,19 +13,12 @@ public class ServoCollibration extends CommandOpMode {
 
     @Override
     public void initialize() {
-        frontGate = new Gate(hardwareMap, "backGate");
-    }
-
-    @Override
-    public void initialize_loop() {
-        frontGate.setServoPos();
-        updateTelemetry();
+        frontGate = new Gate(hardwareMap, "frontGate", 0.7, 0.3);
     }
 
     @Override
     public void run() {
         super.run();
-        frontGate.setServoPos();
         updateTelemetry();
     }
 

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -15,6 +16,10 @@ public class Intake extends SubsystemBase {
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
+
+    public RunCommand enableContiniousliCommand() {
+        return new RunCommand(() -> intakeMotor.setPower(1), this);
     }
 
     public Command enableCommand() {

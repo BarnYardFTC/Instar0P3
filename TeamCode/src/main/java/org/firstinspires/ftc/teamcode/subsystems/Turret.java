@@ -15,16 +15,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Turret extends SubsystemBase {
 
     private final CRServoEx servo;
-    public static double targetAngleDegrees = 180.0;
-    private final double GEAR_RATIO = 2.75;
-    private final double MIN_ANGLE = 0.0;
-    private final double MAX_ANGLE = 360.0;
-    private final double CENTER_RAW_ENCODER = 270.0;
+    public static double targetAngleDegrees = 180;
+    private static final double GEAR_RATIO = 2.75;
+    private static final double MIN_ANGLE = 50.0;
+    private static final double MAX_ANGLE = 410.0;
+    private static final double CENTER_RAW_ENCODER = 221.0;
 
     public static double kP = 0.01, kD = 0.0001;
-    private double lastRawEncoderAngle = 0.0;
-    private double totalServoDegrees = 180.0 * GEAR_RATIO;
-    private boolean initialized = false;
+    private static double lastRawEncoderAngle = 0.0;
+    private static double totalServoDegrees = 180.0 * GEAR_RATIO;
+    private static boolean initialized = false;
 
     private double lastError = 0.0;
     private final ElapsedTime timer = new ElapsedTime();
@@ -90,6 +90,10 @@ public class Turret extends SubsystemBase {
         double power = Range.clip((error * kP) + (derivative * kD), -1.0, 1.0);
 
         servo.set(power);
+    }
+
+    public double getRawEncoder(){
+        return servo.getAbsoluteEncoder().getCurrentPosition();
     }
 
     public Command setAngleCommand(double degrees) {

@@ -15,8 +15,8 @@ public class CRTest extends CommandOpMode {
     public void initialize() {
         turret = new Turret(this.hardwareMap, "backTurret", "backTurretEncoder");
         gamepad = new GamepadEx(this.gamepad1);
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(turret.setAngleCommand(0));
-        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(turret.setAngleCommand(360));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(turret.setAngleCommand(50));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(turret.setAngleCommand(410));
         gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(turret.setAngleCommand(180));
         gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(turret.adjustAngleCommand(10));
         gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(turret.adjustAngleCommand(-10));
@@ -26,6 +26,7 @@ public class CRTest extends CommandOpMode {
     public void run() {
         super.run();
         this.telemetry.addData(   "Turret", turret.getAngle());
+        this.telemetry.addData("Raw angle", turret.getRawEncoder());
         this.telemetry.update();
     }
 }
