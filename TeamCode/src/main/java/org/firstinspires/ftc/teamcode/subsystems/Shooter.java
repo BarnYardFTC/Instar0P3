@@ -4,10 +4,11 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
-
-import org.firstinspires.ftc.teamcode.general.BarnRobot;
 
 @Configurable
 public class Shooter extends SubsystemBase {
@@ -17,14 +18,15 @@ public class Shooter extends SubsystemBase {
     private double kV = 0.000176, kS = 0.09, kP = 0.00145;
 
     public static int RPM = 2500;
+    public static int CLOSE_RPM = 1000, MID_RPM = 2000, FAR_RPM = 2500;
 
-    private DcMotorEx rightMotor;
-    private DcMotorEx leftMotor;
+    private DcMotorEx shooterMotor;
 
     private double lastTime;
     private int lastPosition;
     private double rpm = 0;
     private double tgtRpm = 0;
+    private boolean shooterMode;
 
     public static final double GRAVITY_MM = 9810.0;
     public static final double SHOOTER_HEIGHT_MM = 153.0;
@@ -39,21 +41,17 @@ public class Shooter extends SubsystemBase {
     public static double POLLEN_EFFICIENCY = 0.8;
     public static double NECTAR_EFFICIENCY = 1.0;
 
-    public Shooter() {
-        rightMotor = BarnRobot.getInstance().hardware.shooterMotorRight;
-        leftMotor = BarnRobot.getInstance().hardware.shooterMotorLeft;
+    public Shooter(HardwareMap hwMap,  String motorName, boolean shooterMode){ //TODO: enum this bullshit
+        shooterMotor = hwMap.get(DcMotorEx.class, motorName);
 
-        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         lastTime = System.currentTimeMillis();
         // Fixed: Read leftMotor to match updateRPM()
-        lastPosition = leftMotor.getCurrentPosition();
+        lastPosition = shooterMotor.getCurrentPosition();
+        this.shooterMode = shooterMode;
     }
 
     /**
@@ -65,12 +63,11 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setMotorPower(double power) {
-        rightMotor.setPower(power);
-        leftMotor.setPower(power);
+        shooterMotor.setPower(power);
     }
 
     public void updateRPM() {
-        int currentPosition = leftMotor.getCurrentPosition();
+        int currentPosition = shooterMotor.getCurrentPosition();
         double currentTime = System.currentTimeMillis();
         double deltaTime = currentTime - lastTime;
 
@@ -139,6 +136,14 @@ public class Shooter extends SubsystemBase {
         return rawRpm / pieceEfficiency;
     }
 
+    public void setCustomRPM(int rpm){
+        RPM = rpm;
+    }
+
+    public Command setCustomRPMCommand(int rpm){
+        return new InstantCommand(() -> setCustomRPM(rpm), this);
+    }
+
     public boolean isReady() {
         if (tgtRpm == 0) return false;
         return Math.abs(rpm - tgtRpm) < 50;
@@ -148,19 +153,20 @@ public class Shooter extends SubsystemBase {
         setMotorRPM(RPM);
     }
 
-    public void setShooterSpeedDependsOnDist() {
-        double currentX = BarnRobot.getInstance().drive.follower.pose().x();
-        double currentY = BarnRobot.getInstance().drive.follower.pose().y();
-        setMotorRPM(calculatePollenRPM(currentX, currentY));
-    }
+//    public void setShooterSpeedDependsOnDist() {
+//        double currentX = BarnRobot.getInstance().drive.follower.pose().x();
+//        double currentY = BarnRobot.getInstance().drive.follower.pose().y();
+//        if(shooterMode) setMotorRPM(calculatePollenRPM(currentX, currentY));
+//        else setMotorRPM(calculateNectarRPM(currentX, currentY));
+//    }
 
     public RunCommand operateShooter() {
         return new RunCommand(this::setShooterSpeed, this);
     }
 
-    public RunCommand operateShooterDependsOnDist() {
-        return new RunCommand(this::setShooterSpeedDependsOnDist, this);
-    }
+//    public RunCommand operateShooterDependsOnDist() {
+//        return new RunCommand(this::setShooterSpeedDependsOnDist, this);
+//    }
 
     public RunCommand turnOff() {
         return new RunCommand(() -> setMotorRPM(0), this);

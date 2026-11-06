@@ -35,11 +35,11 @@ public class SashaTest extends CommandOpMode {
     public void initialize() {
         robot = BarnRobot.getInstance();
         robot.init(this);
-        robot.shooter.setDefaultCommand(robot.shooter.operateShooter());
+//        robot.shooter.setDefaultCommand(robot.shooter.operateShooter());
     }
     @Override
     public void preRun() {
-        robot.drive.follower.setPose(START_POSE);
+//        robot.drive.follower.setPose(START_POSE);
         schedule(routine());
     }
 
@@ -52,11 +52,11 @@ public class SashaTest extends CommandOpMode {
     private Command routine() {
         return new SequentialCommandGroup(
                 robot.intake.enableCommand(),
-                new FollowPathCommand(robot.drive.follower, goShoot),
-                robot.transfer.setPassCommand(),
+//                new FollowPathCommand(robot.drive.follower, goShoot),
+                robot.transfer.enableCommand(),
                 robot.intake.disableCommand(),
-                new WaitCommand(1000),
-                new FollowPathCommand(robot.drive.follower, goPark)
+                new WaitCommand(1000)
+//                new FollowPathCommand(robot.drive.follower, goPark)
         );
     }
 }

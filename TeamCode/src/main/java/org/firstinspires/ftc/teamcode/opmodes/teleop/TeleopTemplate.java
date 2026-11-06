@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 
-import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
 import com.seattlesolvers.solverslib.command.button.Trigger;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.photon.PhotonCore;
 
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import java.util.ArrayList;
 
@@ -18,18 +18,39 @@ public class TeleopTemplate {
     private static ArrayList<String> binds = new ArrayList<>();
     private static final BarnRobot robot = BarnRobot.getInstance();
 
-    public static void apply(OpMode opMode, Drivetrain.DriveMode driveMode) {
+    public static void apply(OpMode opMode, boolean isFieldCentric) {
         PhotonCore.enable();
         robot.init(opMode);
-//        robot.shooter.setDefaultCommand(robot.shooter.operateShooterDependsOnDist());
-        robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
+        robot.frontShooter.setDefaultCommand(robot.frontShooter.operateShooter());
+        robot.backShooter.setDefaultCommand(robot.backShooter.operateShooter());
+        if(isFieldCentric) robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
+        else robot.drive.setDefaultCommand(robot.drive.followPollenCommand());
         // Binds
-        toggleBind(GamepadKeys.Button.B, "Change speed", robot.drive.setSlowModeCommand(),  robot.drive.setFastModeCommand());
-        toggleBind(GamepadKeys.Button.A, "Transfer", robot.transfer.setPassCommand(), robot.transfer.setCollectCommand());
-        toggleBind(GamepadKeys.Button.Y, "Shooter", robot.shooter.turnOff(), robot.shooter.operateShooterDependsOnDist());
-        toggleBind(GamepadKeys.Button.X, "Intake", robot.intake.disableCommand(), robot.intake.enableCommand());
-        //toggleBind(GamepadKeys.Button.DPAD_DOWN, "Go to", robot.drive.goToCommand(new Pose(47, 47, 90)), robot.drive.goToCommand(new Pose(47, 47, 90)));
-        //toggleBind(GamepadKeys.Button.DPAD_UP, "Turn to", robot.drive.turnToGoal(), robot.drive.turnToGoal());
+        triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Intake", robot.intake.enableCommand(), robot.intake.disableCommand());
+        triggerBind(GamepadKeys.Trigger.LEFT_TRIGGER, "Transfer", robot.transfer.enableCommand(), robot.transfer.disableCommand());
+        holdBind(GamepadKeys.Button.LEFT_STICK_BUTTON, "Change speed", robot.drive.setSlowModeCommand(), robot.drive.setFastModeCommand());
+        toggleBind(GamepadKeys.Button.DPAD_UP, "Gate",
+                new ParallelCommandGroup(robot.backGate.openCommand(), robot.frontGate.openCommand()),
+                new ParallelCommandGroup(robot.backGate.closeCommand(), robot.frontGate.closeCommand())
+        );
+        keyBind(GamepadKeys.Button.A, "Shooter speed: Low",
+                new ParallelCommandGroup(robot.frontShooter.setCustomRPMCommand(Shooter.CLOSE_RPM), robot.backShooter.setCustomRPMCommand(Shooter.CLOSE_RPM))
+        );
+        keyBind(GamepadKeys.Button.B, "Shooter speed: Mid",
+                new ParallelCommandGroup(robot.frontShooter.setCustomRPMCommand(Shooter.MID_RPM), robot.backShooter.setCustomRPMCommand(Shooter.MID_RPM))
+        );
+        keyBind(GamepadKeys.Button.Y, "Shooter speed: Fast",
+                new ParallelCommandGroup(robot.frontShooter.setCustomRPMCommand(Shooter.FAR_RPM), robot.backShooter.setCustomRPMCommand(Shooter.FAR_RPM))
+        );
+        keyBind(GamepadKeys.Button.X, "Stop Shooter",
+                new ParallelCommandGroup(robot.frontShooter.turnOff(), robot.backShooter.turnOff())
+        );
+        keyBind(GamepadKeys.Button.RIGHT_BUMPER, "Turn Turret Right",
+                new ParallelCommandGroup(robot.backTurret.adjustAngleCommand(10))
+        );
+        keyBind(GamepadKeys.Button.LEFT_BUMPER, "Turn Turret Left",
+            new ParallelCommandGroup(robot.backTurret.adjustAngleCommand(-10))
+        );
     }
 
     public static void toggleBind(GamepadKeys.Button button, String description, Command command1, Command command2) {
@@ -41,7 +62,24 @@ public class TeleopTemplate {
         binds.add(button.toString() + ": " + description);
     }
 
+    public static void keyBind(GamepadKeys.Button button, String description, Command command1) {
+        robot.gamepadEx1.getGamepadButton(button)
+                .whenPressed(
+                        command1
+                );
+        binds.add(button.toString() + ": " + description);
+    }
 
+    public static void holdBind(GamepadKeys.Button button, String description, Command command1, Command command2) {
+        robot.gamepadEx1.getGamepadButton(button)
+                .whenHeld(
+                        command1
+                )
+                .whenReleased(
+                        command2
+                );
+        binds.add(button.toString() + ": " + description);
+    }
 
     public static void triggerBind(GamepadKeys.Trigger trigger, String description, Command command, Command offCommand) {
         new Trigger(() -> robot.gamepadEx1.getTrigger(trigger) > 0.5)
@@ -56,19 +94,20 @@ public class TeleopTemplate {
 
     public static void periodic(){
         binds.forEach(robot.telemetry::addLine);
-        robot.telemetry.addData("TX", robot.limelight.getTx());
-        robot.telemetry.addData("TY", robot.limelight.getTy());
-        robot.telemetry.addData("TA", robot.limelight.getTa());
 
-        robot.telemetry.addData("Robot's following:", (robot.limelight.currentPipeline == 1) ? "pollen" : "red nectars");
+        robot.telemetry.addData("Robot speed: ", robot.drive.speedModifier);
+        robot.telemetry.addLine("________ SHOOTER ________");
+        robot.telemetry.addData("Front shooter speed: ", robot.frontShooter.getRPM());
+        robot.telemetry.addData("Back shooter speed: ", robot.backShooter.getRPM());
 
+        robot.telemetry.addLine("________ TURRET ________");
+//        robot.telemetry.addData("Front turret angle: ", robot.frontTurret.getAngle());
+        robot.telemetry.addData("Back turret angle: ", robot.backTurret.getAngle());
 
-        robot.telemetry.addData("Target Robot Space:", robot.limelight.getTargetRobotSpace());
-//        robot.telemetry.addData("Is data: ", robot.limelight.isData);
-//        robot.telemetry.addData("Is valid: ", robot.limelight.isValid);
+        robot.telemetry.addLine("________ GATE ________");
+        robot.telemetry.addData("Front gate position: ", robot.frontGate.getGatePosition());
+        robot.telemetry.addData("Back gate position: ", robot.backGate.getGatePosition());
 
-//        robot.telemetry.addData("Target Distance:", BarnRobot.getInstance().limelight.getDistance());
-//        robot.telemetry.addData("targetToField",robot.drive.targetToField(robot.drive.follower.pose(), robot.limelight.getTargetRobotSpace()));
         robot.periodic();
     }
 
@@ -76,7 +115,3 @@ public class TeleopTemplate {
         binds.clear();
     }
 }
-
-
-
-
