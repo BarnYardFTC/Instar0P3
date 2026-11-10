@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
-import com.bylazar.configurables.PanelsConfigurables;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.CommandOpMode;
 
 import org.firstinspires.ftc.teamcode.subsystems.Gate;

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import static com.pedropathing.api.Paths.*;
 import com.pedropathing.api.Paths;
 
 import com.pedropathing.api.PoseFactory;
@@ -9,6 +10,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -23,22 +25,19 @@ public class AutoRun extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(8.7737, 16.2288, 90);
-    private final Pose path1 = poseFactory.of(57.4311, 20.9735, 90);
-    private final Pose point2 = poseFactory.of(9.3021, 8.7655, 180);
-    private final Pose point2Control1 = poseFactory.of(54.9946, 9.1427, 0);
-    private final Pose point3 = poseFactory.of(17.4415, 30.5898, 180);
-    private final Pose point4 = poseFactory.of(61.8056, 119.4968, -89.8699);
-    private final Pose point4Control1 = poseFactory.of(13.8856, 94.4076, 0);
-    private final Pose point4Control2 = poseFactory.of(61.7701, 135.156, 0);
+    private final Pose start = poseFactory.of(132.7427, 127.1391, 90);
+    private final Pose path1 = poseFactory.of(96.4286, 132.957, 0);
+    private final Pose point2 = poseFactory.of(132.9134, 132.7345, 0);
+    private final Pose point3 = poseFactory.of(85.5977, 20.0354, 0);
+    private final Pose point3Control1 = poseFactory.of(125.6903, 43.0669, 0);
+    private final Pose point3Control2 = poseFactory.of(94.1487, 8.6825, 0);
 
     // Autonomous routine
     public Command autoRoutine() {
         return sequential(
                 follow(follower, path1()),
                 follow(follower, path2()),
-                follow(follower, path3()),
-                follow(follower, path4())
+                follow(follower, path3())
         );
     }
 
@@ -74,14 +73,10 @@ public class AutoRun extends LinearOpMode {
     }
 
     public Path path2() {
-        return Paths.curve(path1, point2Control1, point2).constant(point2);
+        return Paths.line(path1, point2).constant(point2);
     }
 
     public Path path3() {
-        return Paths.line(point2, point3).constant(point3);
-    }
-
-    public Path path4() {
-        return Paths.curve(point3, point4Control1, point4Control2, point4).tangent();
+        return Paths.curve(point2, point3Control1, point3Control2, point3).constant(point3);
     }
 }
