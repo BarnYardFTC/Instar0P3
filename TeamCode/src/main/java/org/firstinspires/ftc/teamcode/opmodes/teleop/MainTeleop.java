@@ -11,17 +11,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 @TeleOp(name = "Main Teleop", group = "main")
 public class MainTeleop extends CommandOpMode {
 
-    private final PoseFactory poseFactory = PoseFactory.degrees();
-    private final Pose START_POSE = poseFactory.of(9.8461262553802,130.98139347202294, -90);
-
     @Override
     public void initialize() {
-        TeleopTemplate.apply(this, Drivetrain.DriveMode.MANUAL);
-    }
-
-    @Override
-    public void preRun() {
-        BarnRobot.getInstance().drive.follower.setPose(START_POSE);
+        TeleopTemplate.apply(this, true);
     }
 
     @Override

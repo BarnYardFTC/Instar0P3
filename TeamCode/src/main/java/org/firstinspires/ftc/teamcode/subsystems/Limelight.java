@@ -7,6 +7,7 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.sun.source.doctree.StartElementTree;
 
@@ -34,8 +35,8 @@ public class Limelight extends SubsystemBase {
     public boolean targetAchieved;
 
     private List<LLResultTypes.ColorResult> colorResults;
-    public Limelight() {
-        limelight = BarnRobot.getInstance().hardware.limelight;
+    public Limelight(HardwareMap hwMap, String limelightName) {
+        limelight = hwMap.get(Limelight3A.class, limelightName);
         limelight.setPollRateHz(100);
         start();
     }
