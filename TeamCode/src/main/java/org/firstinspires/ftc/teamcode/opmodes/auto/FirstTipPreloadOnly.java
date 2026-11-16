@@ -14,7 +14,7 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.general.Constants;
 
 @Autonomous(name = "FirstTip", group = "TeammatePreloadOnly")
 public class FirstTipPreloadOnly extends LinearOpMode {
