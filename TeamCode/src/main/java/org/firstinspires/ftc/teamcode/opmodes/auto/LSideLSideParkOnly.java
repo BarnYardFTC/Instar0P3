@@ -20,7 +20,8 @@ import org.firstinspires.ftc.teamcode.general.Constants;
 
 @Autonomous(name = "LSide", group = "LSideParkOnly")
 public class LSideLSideParkOnly extends LinearOpMode {
-
+    //this autonamous is for teammates who Only Park
+//We Start on left side and park on left Side
     private Follower follower;
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
