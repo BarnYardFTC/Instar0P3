@@ -77,7 +77,7 @@ public class BarnRobot {
         telemetry = opMode.telemetry;
 
         pinpoint = new Pinpoint(opMode.hardwareMap, Hardware.PINPOINT.key);
-//        limelight = new Limelight(opMode.hardwareMap, Hardware.LIMELIGHT.key);
+        limelight = new Limelight(opMode.hardwareMap, Hardware.LIMELIGHT.key);
         drive = new Drivetrain(
                 opMode.hardwareMap,
                 Hardware.DRIVETRAIN_LF.key,
@@ -91,8 +91,8 @@ public class BarnRobot {
         backGate = new Gate(opMode.hardwareMap, Hardware.BACK_GATE.key, BACK_CLOSE_POS, BACK_OPEN_POS);
         frontShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_FRONT.key, true);
         backShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_BACK.key, false);
-        frontTurret = new Turret(opMode.hardwareMap, Hardware.FRONT_TURRET.key, Hardware.FRONT_TURRET_ENCODER.key);
-        backTurret = new Turret(opMode.hardwareMap, Hardware.BACK_TURRET.key, Hardware.BACK_TURRET_ENCODER.key);
+//        frontTurret = new Turret(opMode.hardwareMap, Hardware.FRONT_TURRET.key, Hardware.FRONT_TURRET_ENCODER.key, );
+//        backTurret = new Turret(opMode.hardwareMap, Hardware.BACK_TURRET.key, Hardware.BACK_TURRET_ENCODER.key);
     }
 
     public void periodic() {

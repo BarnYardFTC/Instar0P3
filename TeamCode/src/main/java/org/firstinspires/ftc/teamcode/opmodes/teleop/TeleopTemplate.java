@@ -21,8 +21,8 @@ public class TeleopTemplate {
     public static void apply(OpMode opMode, boolean isFieldCentric) {
         PhotonCore.enable();
         robot.init(opMode);
-        robot.frontShooter.setDefaultCommand(robot.frontShooter.operateShooter());
-        robot.backShooter.setDefaultCommand(robot.backShooter.operateShooter());
+//        robot.frontShooter.setDefaultCommand(robot.frontShooter.operateShooter());
+//        robot.backShooter.setDefaultCommand(robot.backShooter.operateShooter());
         if(isFieldCentric) robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
         else robot.drive.setDefaultCommand(robot.drive.followPollenCommand());
         // Binds

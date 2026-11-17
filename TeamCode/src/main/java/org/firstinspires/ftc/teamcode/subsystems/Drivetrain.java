@@ -5,6 +5,7 @@ import static com.pedropathing.api.Paths.line;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -120,25 +121,38 @@ public class Drivetrain extends SubsystemBase {
     public void followPollen() {
         Limelight limelight = BarnRobot.getInstance().limelight;
         Pose currentPose = follower.pose();
+        double turn = 0.0;
 
         boolean inTargetZone = currentPose.x() + 5 > 72 && currentPose.heading() < 65 && currentPose.heading() > -65;
 
-        if (!limelight.hasValidTarget() || inTargetZone) {
-            powers = new DrivePowers(0, 0, 0.3);
-        } else {
+        if (limelight == null || !limelight.hasValidTarget()) {
             double tx = limelight.getTx();
-            double turn = 0.0;
-            double forward = 0.3;
-            if (Math.abs(tx) > 1.2) {
-                turn = tx * -0.015;
-                turn = Math.max(-0.35, Math.min(0.35, turn));
+            if (Math.abs(turn) < 0.1 && Math.abs(tx) > 0.5) {
+                turn = Math.max(-0.25, Math.min(0.25, -tx * 0.012));
             }
-            powers = new DrivePowers(-1 * forward, 0, turn);
+            powers = new DrivePowers(0.5, 0, turn);
+        }else {
+            powers = new DrivePowers(0, 0, 0.3);
         }
-
         follower.manual(powers);
         follower.update();
     }
+
+//        if (limelight == null || !limelight.hasValidTarget() || inTargetZone) {
+//            powers = new DrivePowers(0, 0, 0.2);
+//            follower.manual(powers);
+//            follower.update();
+//            return;
+//        }
+//
+//        List<LLResultTypes.ColorResult> colorResults = limelight.getLatestResult() != null ? limelight.getLatestResult().getColorResults() : null;
+//
+//        if (colorResults == null || colorResults.isEmpty()) {
+//            powers = new DrivePowers(0, 0, 0.2);
+//            follower.manual(powers);
+//            follower.update();
+//            return;
+//        }
 
     // ==========================================
     // Command Factories

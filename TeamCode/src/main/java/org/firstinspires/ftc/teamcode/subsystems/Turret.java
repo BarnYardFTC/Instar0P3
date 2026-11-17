@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Turret extends SubsystemBase {
 
     private final CRServoEx servo;
-    public static double targetAngleDegrees = 260;
+    public static double targetAngleDegrees = 180;
     private static final double GEAR_RATIO = 2.75;
     private static final double MIN_ANGLE = 50.0;
     private static final double MAX_ANGLE = 410.0;
@@ -23,7 +23,7 @@ public class Turret extends SubsystemBase {
 
     public static double kP = 0.01, kD = 0.0001;
     private static double lastRawEncoderAngle = 0.0;
-    private static double totalServoDegrees = 180.0 * GEAR_RATIO;
+    private static double totalServoDegrees;
     private static boolean initialized = false;
 
     private double lastError = 0.0;
@@ -34,7 +34,8 @@ public class Turret extends SubsystemBase {
     }
 
     private void setAngle(double degrees) {
-        targetAngleDegrees = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, degrees));
+//        targetAngleDegrees = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, degrees));
+        targetAngleDegrees = degrees;
     }
 
     private void updateOverflowEncoder() {
@@ -43,13 +44,13 @@ public class Turret extends SubsystemBase {
         if (!initialized) {
             lastRawEncoderAngle = currentRaw;
 
-            double offsetFromCenter = currentRaw - CENTER_RAW_ENCODER;
+            double offsetFromCenter = currentRaw;
             if (offsetFromCenter > 180.0) {
                 offsetFromCenter -= 360.0;
             } else if (offsetFromCenter < -180.0) {
                 offsetFromCenter += 360.0;
             }
-            totalServoDegrees = (180.0 * GEAR_RATIO) + offsetFromCenter;
+            totalServoDegrees = 180.0 + offsetFromCenter;
 
             timer.reset();
             initialized = true;
@@ -72,14 +73,18 @@ public class Turret extends SubsystemBase {
     }
 
     public double getAngle() {
-        return totalServoDegrees / GEAR_RATIO;
+        return totalServoDegrees;
+    }
+
+    public double getVoltage(){
+        return servo.getAbsoluteEncoder().getVoltage();
     }
 
     @Override
     public void periodic() {
         updateOverflowEncoder();
 
-        double targetServoDegrees = targetAngleDegrees * GEAR_RATIO;
+        double targetServoDegrees = targetAngleDegrees;
         double error = targetServoDegrees - totalServoDegrees;
 
         double dt = timer.seconds();
@@ -92,6 +97,8 @@ public class Turret extends SubsystemBase {
 
         servo.set(power);
     }
+
+
 
     public double getRawEncoder(){
         return servo.getAbsoluteEncoder().getCurrentPosition();

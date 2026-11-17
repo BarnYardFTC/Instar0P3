@@ -10,11 +10,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 @TeleOp(name = "PollenFollowingTest", group = "test")
 public class PollenFollowingTest extends CommandOpMode {
-
+    BarnRobot robot = BarnRobot.getInstance();
     @Override
     public void initialize() {
-        BarnRobot.getInstance().intake.setDefaultCommand(BarnRobot.getInstance().intake.enableContiniousliCommand());
-        BarnRobot.getInstance().drive.setDefaultCommand(BarnRobot.getInstance().drive.followPollenCommand());
+        robot.init(this);
+//        robot.intake.setDefaultCommand(robot.intake.enableContiniousliCommand());
+        robot.drive.setDefaultCommand(robot.drive.followPollenCommand());
+
 //        TeleopTemplate.apply(this, false);
     }
 

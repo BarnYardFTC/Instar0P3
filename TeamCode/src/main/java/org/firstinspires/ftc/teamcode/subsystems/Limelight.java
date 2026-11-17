@@ -30,9 +30,9 @@ public class Limelight extends SubsystemBase {
     private LLResult latestResult;
     public boolean isData = false;
     public boolean isValid = false;
-    public int currentPipeline = 1;
+    public int currentPipeline = 4;
     private double targetSizeCoefficient = 1.677;
-    public boolean targetAchieved;
+    public boolean targetAchieved = false;
 
     private List<LLResultTypes.ColorResult> colorResults;
     public Limelight(HardwareMap hwMap, String limelightName) {
@@ -49,44 +49,40 @@ public class Limelight extends SubsystemBase {
         limelight.pipelineSwitch(num);
         currentPipeline = num;
     }
-    public void setBestTargetPipeline(){
+//    public void setBestTargetPipeline(){
 //        results[currentPipeline - 1] = limelight.getLatestResult();
-
-        LLResult pipeline1;
-        LLResult pipeline2;
-
-        pipeline1 = limelight.getLatestResult();
-        switchPipeline((currentPipeline == 1) ? 2 : 1);
-        pipeline2 = limelight.getLatestResult();
-
-        if (pipeline1 != null && pipeline2 != null){
-            if (pipeline1.getTa() * targetSizeCoefficient >= pipeline2.getTa()) switchPipeline(1);
-            else switchPipeline(2);
-        }
-        else {
-            if (pipeline1!=null) switchPipeline(1);
-            else if (pipeline2!=null) switchPipeline(2);
-        }
-        targetAchieved = false;
-    }
-
-    //
-
+//
+//        LLResult pipeline4;
+//        LLResult pipeline2;
+//
+//        pipeline4 = limelight.getLatestResult();
+//        switchPipeline((currentPipeline == 4) ? 2 : 4);
+//        pipeline2 = limelight.getLatestResult();
+//
+//        if (pipeline4 != null && pipeline2 != null){
+//            if (pipeline4.getTa() * targetSizeCoefficient >= pipeline2.getTa()) switchPipeline(4);
+//            else switchPipeline(2);
+//        }
+//        else {
+//            if (pipeline4!=null) switchPipeline(4);
+//            else if (pipeline2!=null) switchPipeline(2);
+//        }
+//        targetAchieved = false;
+//    }
     public void update() {
-        if (!targetAchieved){
+        if (!targetAchieved) {
             latestResult = limelight.getLatestResult();
-            if (latestResult.isValid() && latestResult != null){
+            if (hasValidTarget()) {
                 colorResults = latestResult.getColorResults();
             }
         }
-        else setBestTargetPipeline();
 
-        if (!limelight.getLatestResult().isValid()) {
-            isData = false;
-            targetAchieved = true;
-        } else {
-            isData = true;
-        }
+//        if (!limelight.getLatestResult().isValid()) {
+//            isData = false;
+//            targetAchieved = true;
+//        } else {
+//            isData = true;
+//        }
     }
 
     public LLResult getLatestResult() {
