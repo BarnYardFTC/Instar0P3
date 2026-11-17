@@ -119,24 +119,42 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void followPollen() {
-        Limelight limelight = BarnRobot.getInstance().limelight;
         Pose currentPose = follower.pose();
-        double turn = 0.0;
-
         boolean inTargetZone = currentPose.x() + 5 > 72 && currentPose.heading() < 65 && currentPose.heading() > -65;
-
-        if (limelight == null || !limelight.hasValidTarget()) {
-            double tx = limelight.getTx();
-            if (Math.abs(turn) < 0.1 && Math.abs(tx) > 0.5) {
-                turn = Math.max(-0.25, Math.min(0.25, -tx * 0.012));
-            }
-            powers = new DrivePowers(0.5, 0, turn);
-        }else {
+        if (!BarnRobot.getInstance().limelight.hasValidTarget())
             powers = new DrivePowers(0, 0, 0.3);
+        else {
+            double tx = BarnRobot.getInstance().limelight.getTx();
+            double turn = 0.0;
+            double forward = 0.3;
+            if (Math.abs(tx) > 1.2) {
+                turn = tx * -0.015;
+                turn = Math.max(-0.35, Math.min(0.35, turn));
+            }
+            powers = new DrivePowers(-1 * -forward, 0, turn);
         }
         follower.manual(powers);
         follower.update();
     }
+
+//      Limelight limelight = BarnRobot.getInstance().limelight;
+//        Pose currentPose = follower.pose();
+//        double turn = 0.0;
+//
+//        boolean inTargetZone = currentPose.x() + 5 > 72 && currentPose.heading() < 65 && currentPose.heading() > -65;
+//
+//        if (limelight == null || !limelight.hasValidTarget()) {
+//            double tx = limelight.getTx();
+//            if (Math.abs(turn) < 0.1 && Math.abs(tx) > 0.5) {
+//                turn = Math.max(-0.25, Math.min(0.25, -tx * 0.012));
+//            }
+//            powers = new DrivePowers(0.5, 0, turn);
+//        }else {
+//            powers = new DrivePowers(0, 0, 0.3);
+//        }
+//        follower.manual(powers);
+//        follower.update();
+//    }
 
 //        if (limelight == null || !limelight.hasValidTarget() || inTargetZone) {
 //            powers = new DrivePowers(0, 0, 0.2);
