@@ -17,8 +17,11 @@ public class Turret extends SubsystemBase {
     private double tgt = nominal;
     private double lastRawAngle;
     private double currentRawAngle;
+    private final double GEAR_RATIO = 2.75;
 
-    private final double GEAR_RATIO = 2.75; // oh how i want to make it a numero magico in periodic
+
+    private boolean isInitialized = false;
+    private final double MAX_TICK_DELTA = 45.0;
 
     public Turret(HardwareMap hardwareMap, String servoName, String encoderName) {
         servo = new CRServoEx(hardwareMap, servoName, encoderName, 3.3, AngleUnit.DEGREES, CRServoEx.RunMode.RawPower);
@@ -28,18 +31,55 @@ public class Turret extends SubsystemBase {
 
     @Override
     public void periodic() {
+//        currentRawAngle = servo.getAbsoluteEncoder().getCurrentPosition();
+//
+//        double delta = currentRawAngle - lastRawAngle;
+//
+//        // error
+//        if (delta > 180) {
+//            delta -= 360;
+//        } else if (delta < -180) {
+//            delta += 360;
+//        }
+//
+//
+//
+//        nominal += delta / GEAR_RATIO;
+//        lastRawAngle = currentRawAngle;
+//
+//        if (tgt > nominal - 3 && tgt < nominal + 3) {
+//            servo.set(0);
+//        } else if (tgt > nominal) {
+//            servo.set(0.1);
+//        } else if (tgt < nominal) {
+//            servo.set(-0.1);
+//        }
         currentRawAngle = servo.getAbsoluteEncoder().getCurrentPosition();
-        // TODO: redo this bs with PID
-        if (tgt > nominal - 3 && tgt < nominal + 3) { // adds error so it doesnt destroy itself
-            servo.set(0);
-        } else if (tgt > nominal) {
-            servo.set(0.7);
-        } else if (tgt < nominal) { // 0.7 instead of 1 just in case
-            servo.set(-0.7);
-            // syncs nominal with change in encoder
-            // TODO: make it not break when going over 360 or 0
-            nominal += (currentRawAngle - lastRawAngle) / GEAR_RATIO;
+
+        // 1. Guard against startup hardware garbage on frame 1
+        if (!isInitialized) {
             lastRawAngle = currentRawAngle;
+            isInitialized = true;
+            return;
+        }
+
+        // 2. Trigonometric unwrapping: smoothly maps delta to [-180, 180] with zero floating-point edge cases
+        double deltaRad = Math.toRadians(currentRawAngle - lastRawAngle);
+        double delta = Math.toDegrees(Math.atan2(Math.sin(deltaRad), Math.cos(deltaRad)));
+
+        // 3. Glitch & Slip Rejection: drop impossible single-tick jumps (>45° in 20ms) to protect nominal
+        if (Math.abs(delta) < MAX_TICK_DELTA) {
+            nominal += delta / GEAR_RATIO;
+        }
+        lastRawAngle = currentRawAngle;
+
+        // 4. Smooth proportional deceleration near target to stop mechanical shaft slip
+        double error = tgt - nominal;
+        if (Math.abs(error) < 3.0) {
+            servo.set(0);
+        } else {
+            double power = Math.signum(error) * Math.min(0.1, Math.max(0.03, Math.abs(error) * 0.01));
+            servo.set(power);
         }
     }
 
@@ -57,6 +97,10 @@ public class Turret extends SubsystemBase {
 
     public double getAbsoluteAngle(){
         return currentRawAngle;
+    }
+
+    public double getLastRawAngle(){
+        return lastRawAngle;
     }
 
     public Command setTgtCommand (double angle){
