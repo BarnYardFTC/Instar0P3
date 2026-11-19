@@ -15,7 +15,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.general.Constants;
-
+//this is autonamous for teammate that only preloads
+//We do second tip
 @Autonomous(name = "FirstTip", group = "TeammatePreloadOnly")
 public class FirstTipPreloadOnly extends LinearOpMode {
 
