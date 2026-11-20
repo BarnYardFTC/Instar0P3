@@ -15,11 +15,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Turret extends SubsystemBase {
 
     private final CRServoEx servo;
-    public static double targetAngleDegrees = 180;
+    public static double targetAngleDegrees = 0;
     private static final double GEAR_RATIO = 2.75;
     private static final double MIN_ANGLE = 50.0;
     private static final double MAX_ANGLE = 410.0;
-    private static final double CENTER_RAW_ENCODER = 270;
+    private static final double CENTER_RAW_ENCODER = 80;
 
     public static double kP = 0.01, kD = 0.0001;
     private static double lastRawEncoderAngle = 0.0;
@@ -44,7 +44,7 @@ public class Turret extends SubsystemBase {
         if (!initialized) {
             lastRawEncoderAngle = currentRaw;
 
-            double offsetFromCenter = currentRaw;
+            double offsetFromCenter = currentRaw - 80;
             if (offsetFromCenter > 180.0) {
                 offsetFromCenter -= 360.0;
             } else if (offsetFromCenter < -180.0) {

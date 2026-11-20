@@ -14,7 +14,7 @@ public class PollenFollowingTest extends CommandOpMode {
     @Override
     public void initialize() {
         robot.init(this);
-//        robot.intake.setDefaultCommand(robot.intake.enableContiniousliCommand());
+        robot.intake.setDefaultCommand(robot.intake.enableContiniousliCommand());
         robot.drive.setDefaultCommand(robot.drive.followPollenCommand());
 
 //        TeleopTemplate.apply(this, false);
@@ -23,7 +23,7 @@ public class PollenFollowingTest extends CommandOpMode {
     @Override
     public void run() {
         super.run();
-//        TeleopTemplate.periodic();
+        robot.periodic();
     }
 
     @Override

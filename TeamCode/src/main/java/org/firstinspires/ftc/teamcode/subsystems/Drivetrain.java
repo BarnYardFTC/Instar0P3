@@ -5,7 +5,6 @@ import static com.pedropathing.api.Paths.line;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -48,6 +47,8 @@ public class Drivetrain extends SubsystemBase {
     private final DcMotor rightBack;
 
     public final Follower follower;
+
+    public final Limelight limelight = BarnRobot.getInstance().limelight;
 
     // ==========================================
     // State Variables
@@ -119,24 +120,38 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void followPollen() {
-        Pose currentPose = follower.pose();
-        boolean inTargetZone = currentPose.x() + 5 > 72 && currentPose.heading() < 65 && currentPose.heading() > -65;
-        if (!BarnRobot.getInstance().limelight.hasValidTarget())
-            powers = new DrivePowers(0, 0, 0.3);
+//        Pose currentPose = follower.pose();
+//        boolean inTargetZone = currentPose.x() + 5 > 72 && currentPose.heading() < 65 && currentPose.heading() > -65;
+//        if (limelight == null || !limelight.hasValidTarget()){
+//            powers = new DrivePowers(0, 0, 0.3);
+//            BarnRobot.getInstance().telemetry.addData("Limelight", "NO TARGET");
+//        } else {
+//            double tx = limelight.getTx();
+//            double turn = 0.0;
+//            double forward = 0.25;
+//            if (Math.abs(tx) > 1.2) {
+//                turn = Math.max(-0.15, Math.min(0.15, tx * -0.006));
+//            }
+//            powers = new DrivePowers(forward, 0, turn);
+//            BarnRobot.getInstance().telemetry.addData("Limelight", "TRACKING | tx: %.2f | turn: %.3f", tx, turn);
+//        }
+
+        if (!BarnRobot.getInstance().limelight.hasValidTarget()) powers = new DrivePowers(0, 0, 0.3);
         else {
             double tx = BarnRobot.getInstance().limelight.getTx();
             double turn = 0.0;
-            double forward = 0.3;
+            double forward = 0.2;
             if (Math.abs(tx) > 1.2) {
                 turn = tx * -0.015;
                 turn = Math.max(-0.35, Math.min(0.35, turn));
             }
-            powers = new DrivePowers(-1 * -forward, 0, turn);
+            powers = new DrivePowers(forward, 0, -turn);
         }
         follower.manual(powers);
         follower.update();
     }
 
+     
 //      Limelight limelight = BarnRobot.getInstance().limelight;
 //        Pose currentPose = follower.pose();
 //        double turn = 0.0;

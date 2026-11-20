@@ -28,9 +28,9 @@ public class BarnRobot {
     public Gate frontGate;
     public Gate backGate;
     public static double FRONT_OPEN_POS = 0.7;
-    public static double FRONT_CLSOE_POS = 0.3;
-    public static double BACK_OPEN_POS = 0.7;
-    public static double BACK_CLOSE_POS = 0.9;
+    public static double FRONT_CLOSE_POS = 0.35;
+    public static double BACK_OPEN_POS = 0.78;
+    public static double BACK_CLOSE_POS = 0.63;
     public Shooter frontShooter;
     public Shooter backShooter;
     public Turret frontTurret;
@@ -87,9 +87,9 @@ public class BarnRobot {
         );
         intake = new Intake(opMode.hardwareMap, Hardware.INTAKE.key);
         transfer = new Transfer(opMode.hardwareMap, Hardware.TRANSFER.key);
-        frontGate = new Gate(opMode.hardwareMap, Hardware.FRONT_GATE.key, FRONT_CLSOE_POS, FRONT_OPEN_POS);
+        frontGate = new Gate(opMode.hardwareMap, Hardware.FRONT_GATE.key, FRONT_CLOSE_POS, FRONT_OPEN_POS);
         backGate = new Gate(opMode.hardwareMap, Hardware.BACK_GATE.key, BACK_CLOSE_POS, BACK_OPEN_POS);
-        frontShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_FRONT.key, true);
+//        frontShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_FRONT.key, true);
         backShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_BACK.key, false);
 //        frontTurret = new Turret(opMode.hardwareMap, Hardware.FRONT_TURRET.key, Hardware.FRONT_TURRET_ENCODER.key, );
 //        backTurret = new Turret(opMode.hardwareMap, Hardware.BACK_TURRET.key, Hardware.BACK_TURRET_ENCODER.key);
