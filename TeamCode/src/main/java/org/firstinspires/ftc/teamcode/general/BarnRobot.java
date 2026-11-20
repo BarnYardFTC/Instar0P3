@@ -89,8 +89,8 @@ public class BarnRobot {
         transfer = new Transfer(opMode.hardwareMap, Hardware.TRANSFER.key);
         frontGate = new Gate(opMode.hardwareMap, Hardware.FRONT_GATE.key, FRONT_CLOSE_POS, FRONT_OPEN_POS);
         backGate = new Gate(opMode.hardwareMap, Hardware.BACK_GATE.key, BACK_CLOSE_POS, BACK_OPEN_POS);
-//        frontShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_FRONT.key, true);
-        backShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_BACK.key, false);
+//        frontShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_FRONT.key, Shooter.ShooterMode.POLLEN);
+        backShooter = new Shooter(opMode.hardwareMap, Hardware.SHOOTER_BACK.key, Shooter.ShooterMode.NECTAR);
 //        frontTurret = new Turret(opMode.hardwareMap, Hardware.FRONT_TURRET.key, Hardware.FRONT_TURRET_ENCODER.key, );
 //        backTurret = new Turret(opMode.hardwareMap, Hardware.BACK_TURRET.key, Hardware.BACK_TURRET_ENCODER.key);
     }

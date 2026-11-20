@@ -17,8 +17,10 @@ public class TeleopTemplate {
 
     private static ArrayList<String> binds = new ArrayList<>();
     private static final BarnRobot robot = BarnRobot.getInstance();
+    public enum ALLIANCE_COLOR {RED, BLUE};
 
-    public static void apply(OpMode opMode, boolean isFieldCentric) {
+
+    public static void apply(OpMode opMode, boolean isFieldCentric, ALLIANCE_COLOR alliance) {
         PhotonCore.enable();
         robot.init(opMode);
         if(isFieldCentric) robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
@@ -41,7 +43,7 @@ public class TeleopTemplate {
                 robot.backShooter.setCustomRPMCommand(Shooter.FAR_RPM)
         );
         keyBind(GamepadKeys.Button.X, "Stop Shooter",
-                robot.backShooter.turnOff()
+                robot.backShooter.setCustomRPMCommand(0)
         );
 //        keyBind(GamepadKeys.Button.RIGHT_BUMPER, "Turn Turret Right",
 //                new ParallelCommandGroup(robot.backTurret.adjustAngleCommand(10))
@@ -97,6 +99,7 @@ public class TeleopTemplate {
         robot.telemetry.addLine("________ SHOOTER ________");
 //        robot.telemetry.addData("Front shooter speed: ", robot.frontShooter.getRPM());
         robot.telemetry.addData("Back shooter speed: ", robot.backShooter.getRPM());
+        robot.telemetry.addData("Is back Shooter ready? ", robot.backShooter.isReady());
 
         robot.telemetry.addLine("________ TURRET ________");
 //        robot.telemetry.addData("Front turret angle: ", robot.frontTurret.getAngle());

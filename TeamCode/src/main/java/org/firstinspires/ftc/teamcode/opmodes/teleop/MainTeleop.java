@@ -13,7 +13,7 @@ public class MainTeleop extends CommandOpMode {
 
     @Override
     public void initialize() {
-        TeleopTemplate.apply(this, true);
+        TeleopTemplate.apply(this, true, TeleopTemplate.ALLIANCE_COLOR.RED);
     }
 
     @Override
