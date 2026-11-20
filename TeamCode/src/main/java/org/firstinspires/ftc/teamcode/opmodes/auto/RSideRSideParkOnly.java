@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.general.Constants;
 //this autonamous is for teammates who Only Park
 //We Start on right side and park on right Side
-@Autonomous(name = "RSide", group = "RSideParkOnly")
+@Autonomous(name = "RSideRSide", group = "RSideParkOnly")
 public class RSideRSideParkOnly extends LinearOpMode {
 
     private Follower follower;

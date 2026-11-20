@@ -5,7 +5,7 @@ import com.seattlesolvers.solverslib.command.CommandOpMode;
 
 import org.firstinspires.ftc.teamcode.subsystems.Gate;
 
-@TeleOp(name = "Servo calibration", group = "test")
+@TeleOp(name = "Servo collibration", group = "test")
 public class ServoCollibration extends CommandOpMode {
     Gate frontGate;
 
