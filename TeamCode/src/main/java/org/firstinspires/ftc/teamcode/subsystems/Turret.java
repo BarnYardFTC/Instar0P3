@@ -1,114 +1,122 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.hardware.motors.CRServoEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.general.BarnRobot;
 
-@Configurable
 public class Turret extends SubsystemBase {
 
-    private final CRServoEx servo;
-    public static double targetAngleDegrees = 0;
-    private static final double GEAR_RATIO = 2.75;
-    private static final double MIN_ANGLE = 50.0;
-    private static final double MAX_ANGLE = 410.0;
-    private static final double CENTER_RAW_ENCODER = 80;
+    CRServoEx servo;
 
-    public static double kP = 0.01, kD = 0.0001;
-    private static double lastRawEncoderAngle = 0.0;
-    private static double totalServoDegrees;
-    private static boolean initialized = false;
+    // nominal is basically a simulated encoder, we rely on it for setting power
+    private double nominal = 0; // number is assumed from real turret starting direction
+    private double tgt = nominal;
+    private double lastRawAngle;
+    private double currentRawAngle;
+    private final double GEAR_RATIO = 2.75;
 
-    private double lastError = 0.0;
-    private final ElapsedTime timer = new ElapsedTime();
+    private Pose tgtPose;
+    private Pose robotPose;
+    private boolean isTracking = false;
 
-    public Turret(HardwareMap hwMap, String turretName, String encoderName) {
-        servo = new CRServoEx(hwMap, turretName, encoderName, 3.3, AngleUnit.DEGREES, CRServoEx.RunMode.RawPower);
-    }
+    private boolean isInitialized = false;
+    private final double MAX_TICK_DELTA = 45.0;
 
-    private void setAngle(double degrees) {
-//        targetAngleDegrees = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, degrees));
-        targetAngleDegrees = degrees;
-    }
-
-    private void updateOverflowEncoder() {
-        double currentRaw = servo.getAbsoluteEncoder().getCurrentPosition();
-
-        if (!initialized) {
-            lastRawEncoderAngle = currentRaw;
-
-            double offsetFromCenter = currentRaw - 80;
-            if (offsetFromCenter > 180.0) {
-                offsetFromCenter -= 360.0;
-            } else if (offsetFromCenter < -180.0) {
-                offsetFromCenter += 360.0;
-            }
-            totalServoDegrees = 180.0 + offsetFromCenter;
-
-            timer.reset();
-            initialized = true;
-            return;
-        }
-
-        double delta = currentRaw - lastRawEncoderAngle;
-        if (delta > 180.0) {
-            delta -= 360.0;
-        } else if (delta < -180.0) {
-            delta += 360.0;
-        }
-
-        if (Math.abs(delta) > 90.0) {
-            return;
-        }
-
-        totalServoDegrees += delta;
-        lastRawEncoderAngle = currentRaw;
-    }
-
-    public double getAngle() {
-        return totalServoDegrees;
-    }
-
-    public double getVoltage(){
-        return servo.getAbsoluteEncoder().getVoltage();
+    public Turret(HardwareMap hardwareMap, String servoName, String encoderName) {
+        servo = new CRServoEx(hardwareMap, servoName, encoderName, 3.3, AngleUnit.DEGREES, CRServoEx.RunMode.RawPower);
+        currentRawAngle = servo.getAbsoluteEncoder().getCurrentPosition();
+        lastRawAngle = currentRawAngle;
     }
 
     @Override
     public void periodic() {
-        updateOverflowEncoder();
 
-        double targetServoDegrees = targetAngleDegrees;
-        double error = targetServoDegrees - totalServoDegrees;
+        // dont trust this yet (this is tracking)
+        if (isTracking) {
+            robotPose = BarnRobot.getInstance().drive.follower.pose();
+            double dx = tgtPose.x() - robotPose.x();
+            double dy = tgtPose.y() - robotPose.y();
+            double targetFieldAngleRad = Math.atan2(dy, dx);
+            double targetRobotAngleRad = targetFieldAngleRad - robotPose.heading();
+            double targetAngleDeg = Math.toDegrees(targetRobotAngleRad);
 
-        double dt = timer.seconds();
-        timer.reset();
-        double derivative = (dt > 0.0001) ? (error - lastError) / dt : 0.0;
-        lastError = error;
+            double diffDeg = targetAngleDeg - nominal;
+            double shortestDeltaDeg = Math.toDegrees(Math.atan2(Math.sin(Math.toRadians(diffDeg)), Math.cos(Math.toRadians(diffDeg))));
+            tgt = nominal + shortestDeltaDeg;
+        }
 
-    // TODO: power = 1 if abs(target - current) > abs(current-target) else -1
-        double power = Range.clip((error * kP) + (derivative * kD), -1.0, 1.0);
+        currentRawAngle = servo.getAbsoluteEncoder().getCurrentPosition();
 
-        servo.set(power);
+        // guard against startup hardware garbage on frame 1
+        if (!isInitialized) {
+            lastRawAngle = currentRawAngle;
+            isInitialized = true;
+            return;
+        }
+
+        // trigonometric unwrapping: smoothly maps delta to [-180, 180] with zero floating-point edge cases
+        double deltaRad = Math.toRadians(currentRawAngle - lastRawAngle);
+        double delta = Math.toDegrees(Math.atan2(Math.sin(deltaRad), Math.cos(deltaRad)));
+
+        // glitch & Slip Rejection: drop impossible single-tick jumps (>45° in 20ms) to protect nominal
+        if (Math.abs(delta) < MAX_TICK_DELTA) {
+            nominal += delta / GEAR_RATIO;
+        }
+        lastRawAngle = currentRawAngle;
+
+        // smooth proportional deceleration near target to stop mechanical shaft slip
+        double error = tgt - nominal;
+        if (Math.abs(error) < 3.0) {
+            servo.set(0);
+        } else {
+            double power = Math.signum(error) * Math.min(0.1, Math.max(0.03, Math.abs(error) * 0.01));
+            servo.set(power);
+        }
     }
 
+    private void setTgt ( double angle){
+        tgt = angle;
+        isTracking = false;
 
-
-    public double getRawEncoder(){
-        return servo.getAbsoluteEncoder().getCurrentPosition();
     }
 
-    public Command setAngleCommand(double degrees) {
-        return new InstantCommand(() -> setAngle(degrees), this);
+    private void addTgt(double angle){
+        tgt += angle;
+        isTracking = false;
     }
 
-    public Command adjustAngleCommand(double deltaDegrees) {
-        return new InstantCommand(() -> setAngle(targetAngleDegrees + deltaDegrees), this);
+    private void setTgtPose(Pose pose){
+        tgtPose = pose;
+        isTracking = true;
+    }
+
+    public double getNominalAngle(){
+        return nominal;
+    }
+
+    public double getAbsoluteAngle(){
+        return currentRawAngle;
+    }
+
+    public double getLastRawAngle(){
+        return lastRawAngle;
+    }
+
+    public Command setTgtCommand (double angle){
+        return new InstantCommand(() -> setTgt(angle), this);
+    }
+
+    public Command addTgtCommand (double angle){
+        return new InstantCommand(() -> addTgt(angle), this);
+    }
+
+    public Command trackCommand (Pose pose) {
+        return new InstantCommand(() -> setTgtPose(pose), this);
     }
 }
