@@ -80,6 +80,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public void updateRPM() {
+        //Function isnt working without encoder
         int currentPosition = shooterMotor.getCurrentPosition();
         double currentTime = System.currentTimeMillis();
 
@@ -95,11 +96,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getRPM() {
-        return tgtRpm;
-    }
-
-    public double getTargetRPM() {
-        return tgtRpm;
+        return this.rpm;
     }
 
     public void setTargetRPM(double rpmTarget) {
@@ -113,10 +110,12 @@ public class Shooter extends SubsystemBase {
         }
 
         double feedForward = kV * tgtRpm + kS;
-        double error = tgtRpm - getRPM();
-        double feedback = error * kP;
 
-        setMotorPower(feedForward + feedback);
+        //Requires an encoder on shooter motor
+//        double error = tgtRpm - getRPM();
+//        double feedback = error * kP;
+
+        setMotorPower(Math.min(1.0, feedForward));
     }
 
     /**
@@ -130,32 +129,16 @@ public class Shooter extends SubsystemBase {
         return calculateBaseRPM(robotXInches * 25.4, robotYInches * 25.4, NECTAR_EFFICIENCY, goal_side, alliance);
     }
 
-    private double GOAL_X_MM;
-    private double GOAL_Y_MM;
-
     private double calculateBaseRPM(double robotXMM, double robotYMM, double pieceEfficiency, GOAL_SIDES goal_side, TeleopTemplate.ALLIANCE_COLOR alliance) {
-        switch (alliance){
-            case RED:
-                switch (goal_side){
-                    case LEFT:
-                        GOAL_X_MM = RED_LEFT_GOAL_X_MM;
-                        GOAL_Y_MM = RED_LEFT_GOAL_Y_MM;
+        double GOAL_Y_MM;
+        double GOAL_X_MM;
 
-                    case RIGHT:
-                        GOAL_X_MM = RED_RIGHT_GOAL_X_MM;
-                        GOAL_Y_MM = RED_RIGHT_GOAL_Y_MM;
-                }
-            case BLUE:
-                switch (goal_side){
-                    case LEFT:
-                        GOAL_X_MM = BLUE_LEFT_GOAL_X_MM;
-                        GOAL_Y_MM = BLUE_LEFT_GOAL_Y_MM;
-
-                    case RIGHT:
-                        GOAL_X_MM = BLUE_RIGHT_GOAL_X_MM;
-                        GOAL_Y_MM = BLUE_RIGHT_GOAL_Y_MM;
-                }
-
+        if (alliance == TeleopTemplate.ALLIANCE_COLOR.RED) {
+            GOAL_X_MM = (goal_side == GOAL_SIDES.LEFT) ? RED_LEFT_GOAL_X_MM : RED_RIGHT_GOAL_X_MM;
+            GOAL_Y_MM = (goal_side == GOAL_SIDES.LEFT) ? RED_LEFT_GOAL_Y_MM : RED_RIGHT_GOAL_Y_MM;
+        } else {
+            GOAL_X_MM = (goal_side == GOAL_SIDES.LEFT) ? BLUE_LEFT_GOAL_X_MM : BLUE_RIGHT_GOAL_X_MM;
+            GOAL_Y_MM = (goal_side == GOAL_SIDES.LEFT) ? BLUE_LEFT_GOAL_Y_MM : BLUE_RIGHT_GOAL_Y_MM;
         }
         double deltaX = GOAL_X_MM - robotXMM;
         double deltaY = GOAL_Y_MM - robotYMM;
