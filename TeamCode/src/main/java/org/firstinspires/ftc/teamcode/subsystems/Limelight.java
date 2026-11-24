@@ -34,6 +34,8 @@ public class Limelight extends SubsystemBase {
     private double targetSizeCoefficient = 1.677;
     public boolean targetAchieved = false;
 
+    double[] pythonOutputs;
+
     private List<LLResultTypes.ColorResult> colorResults;
     public Limelight(HardwareMap hwMap, String limelightName) {
         limelight = hwMap.get(Limelight3A.class, limelightName);
@@ -49,40 +51,9 @@ public class Limelight extends SubsystemBase {
         limelight.pipelineSwitch(num);
         currentPipeline = num;
     }
-//    public void setBestTargetPipeline(){
-//        results[currentPipeline - 1] = limelight.getLatestResult();
-//
-//        LLResult pipeline4;
-//        LLResult pipeline2;
-//
-//        pipeline4 = limelight.getLatestResult();
-//        switchPipeline((currentPipeline == 4) ? 2 : 4);
-//        pipeline2 = limelight.getLatestResult();
-//
-//        if (pipeline4 != null && pipeline2 != null){
-//            if (pipeline4.getTa() * targetSizeCoefficient >= pipeline2.getTa()) switchPipeline(4);
-//            else switchPipeline(2);
-//        }
-//        else {
-//            if (pipeline4!=null) switchPipeline(4);
-//            else if (pipeline2!=null) switchPipeline(2);
-//        }
-//        targetAchieved = false;
-//    }
-    public void update() {
-        if (!targetAchieved) {
-            latestResult = limelight.getLatestResult();
-            if (hasValidTarget()) {
-                colorResults = latestResult.getColorResults();
-            }
-        }
 
-//        if (!limelight.getLatestResult().isValid()) {
-//            isData = false;
-//            targetAchieved = true;
-//        } else {
-//            isData = true;
-//        }
+    public void update() {
+        if (!targetAchieved) latestResult = limelight.getLatestResult();
     }
 
     public LLResult getLatestResult() {
@@ -104,58 +75,24 @@ public class Limelight extends SubsystemBase {
         return hasValidTarget() ? latestResult.getTa() : 0.0;
     }
 
-    public Pose3D getBotposeMT2() {
-        return hasValidTarget() ? latestResult.getBotpose_MT2() : null;
-    }
-
-    public void updateRobotOrientation(double yawDegrees) {
-        limelight.updateRobotOrientation(yawDegrees);
-    }
 
     public Limelight3A get() {
         return limelight;
     }
 
-    LLResultTypes.ColorResult target_D;
-    LLResultTypes.ColorResult target_S;
-    double targetDistance = -1;
-    public double getDistance() {
-        if (hasValidTarget() && colorResults != null && !colorResults.isEmpty()) {
-            target_D = colorResults.get(0);
-            for (LLResultTypes.ColorResult fr : colorResults) {
-                if (fr.getTargetArea() > target_D.getTargetArea()) {
-                    target_D = fr;
-                }
-            }
-            targetDistance = target_D.getTargetPoseCameraSpace().getPosition().z;
-
-        }else BarnRobot.getInstance().telemetry.addLine("No valid targets");
-        return targetDistance;
+    /**
+     * 0 - x offset from center of screen to center of target
+     * 1 - y offset from center of screen to center of target
+     * 2 - area in percentage of detected target
+     * 3 - color ID (1 - yellow, 2 - blue, 3 - red)
+     *
+     * @return array of this 4 numbers for every target on the screen
+     * PIPELINE WILL WORK ONLY WITH FULL LIGHT ON
+     */
+    public double[] getPythonResults(){
+        pythonOutputs = latestResult.getPythonOutput();
+        return pythonOutputs != null && pythonOutputs.length > 0 ? pythonOutputs : new double[]{0.0};
     }
-
-    //Gets target(pollen) position relying on robot position = 0,0,0
-
-    LLResultTypes.ColorResult target2;
-    Pose3D targetPose = new Pose3D(new Position(DistanceUnit.INCH, 0, 0, 0, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, 0, 0, 0));
-    public Pose3D getTargetRobotSpace() {
-        if (hasValidTarget() && colorResults != null && !colorResults.isEmpty()) {
-            isValid = true;
-            target_S = colorResults.get(0);
-            for(LLResultTypes.ColorResult cl : colorResults){
-                if (cl.getTargetPoseCameraSpace().getPosition().z < target_S.getTargetPoseCameraSpace().getPosition().z){
-                    target_S = cl;
-                }
-            }
-            targetPose = target_S.getTargetPoseCameraSpace();
-        }else isValid = false;
-
-        return targetPose;
-    }
-
-    //For future builder of collecting paths for auto
-//    private void targetFinder(){
-//        BarnRobot.getInstance().drive.targetsHashSet.add(new Pose(getTargetRobotSpace().getPosition().x,getTargetRobotSpace().getPosition().y, getTargetRobotSpace().getOrientation().getYaw()));
-//    }
 
     @Override
     public void periodic() {
