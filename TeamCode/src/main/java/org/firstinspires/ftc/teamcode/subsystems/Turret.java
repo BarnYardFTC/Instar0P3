@@ -39,13 +39,8 @@ public class Turret extends SubsystemBase {
 
         // dont trust this yet (this is tracking)
         if (isTracking) {
-
-            // for testing, remove later
-            if (BarnRobot.isRobotInitialized) {
-                robotPose = BarnRobot.getInstance().drive.follower.pose(); // keep this tho
-            } else {
-                robotPose = new Pose(0, 0, 0);
-            }
+//          robotPose = BarnRobot.getInstance().drive.follower.pose();
+            robotPose = new Pose(72, 72, 0);
             double dx = tgtPose.x() - robotPose.x();
             double dy = tgtPose.y() - robotPose.y();
             double targetFieldAngleRad = Math.atan2(dy, dx);
@@ -112,6 +107,10 @@ public class Turret extends SubsystemBase {
 
     public double getLastRawAngle(){
         return lastRawAngle;
+    }
+
+    public double getTgt() {
+        return tgt;
     }
 
     public Command setTgtCommand (double angle){
