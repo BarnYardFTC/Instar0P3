@@ -34,24 +34,26 @@ public class Shooter extends SubsystemBase {
 
     public ShooterMode shooterMode;
 
-    public static final double GRAVITY_MM = 9810.0;
-    public static final double SHOOTER_HEIGHT_MM = 153.0;
-    public static final double SHOOTER_ANGLE_DEG = 70.0;
-    public static final double WHEEL_RADIUS_MM = 48.0;
+    public final double POLLEN_SHOOTER_ANGLE = 53.0;
+    public final double NECTAR_SHOOTER_ANGLE = 47.0;
 
-    public final double RED_LEFT_GOAL_X_MM = 1590.0;
-    public final double RED_LEFT_GOAL_Y_MM = 1463.0;
+    public static final double GRAVITY = 9810.0;
+    public static final double SHOOTER_HEIGHT = 153.0;
+    public static final double WHEEL_RADIUS = 48.0;
 
-    public final double RED_RIGHT_GOAL_X_MM = 1590.0;
-    public final double RED_RIGHT_GOAL_Y_MM = 2194.6;
+    public final double RED_LEFT_GOAL_X = 1590.0;
+    public final double RED_LEFT_GOAL_Y = 1463.0;
 
-    public final double BLUE_LEFT_GOAL_X_MM = 2067.6;
-    public final double BLUE_LEFT_GOAL_Y_MM = 2194.6;
+    public final double RED_RIGHT_GOAL_X = 1590.0;
+    public final double RED_RIGHT_GOAL_Y = 2194.6;
 
-    public final double BLUE_RIGHT_GOAL_X_MM = 2067.6;
-    public final double BLUE_RIGHT_GOAL_Y_MM = 1463.0;
+    public final double BLUE_LEFT_GOAL_X = 2067.6;
+    public final double BLUE_LEFT_GOAL_Y = 2194.6;
 
-    public final double GOAL_Z_MM = 1512.6;
+    public final double BLUE_RIGHT_GOAL_X = 2067.6;
+    public final double BLUE_RIGHT_GOAL_Y = 1463.0;
+
+    public final double GOAL_Z = 1512.6;
 
 
     public static double POLLEN_EFFICIENCY = 0.8;
@@ -130,23 +132,27 @@ public class Shooter extends SubsystemBase {
     }
 
     private double calculateBaseRPM(double robotXMM, double robotYMM, double pieceEfficiency, GOAL_SIDES goal_side, TeleopTemplate.ALLIANCE_COLOR alliance) {
-        double GOAL_Y_MM;
-        double GOAL_X_MM;
+        double GOAL_Y;
+        double GOAL_X;
+        double SHOOTER_ANGLE;
 
         if (alliance == TeleopTemplate.ALLIANCE_COLOR.RED) {
-            GOAL_X_MM = (goal_side == GOAL_SIDES.LEFT) ? RED_LEFT_GOAL_X_MM : RED_RIGHT_GOAL_X_MM;
-            GOAL_Y_MM = (goal_side == GOAL_SIDES.LEFT) ? RED_LEFT_GOAL_Y_MM : RED_RIGHT_GOAL_Y_MM;
+            GOAL_X = (goal_side == GOAL_SIDES.LEFT) ? RED_LEFT_GOAL_X : RED_RIGHT_GOAL_X;
+            GOAL_Y = (goal_side == GOAL_SIDES.LEFT) ? RED_LEFT_GOAL_Y : RED_RIGHT_GOAL_Y;
         } else {
-            GOAL_X_MM = (goal_side == GOAL_SIDES.LEFT) ? BLUE_LEFT_GOAL_X_MM : BLUE_RIGHT_GOAL_X_MM;
-            GOAL_Y_MM = (goal_side == GOAL_SIDES.LEFT) ? BLUE_LEFT_GOAL_Y_MM : BLUE_RIGHT_GOAL_Y_MM;
+            GOAL_X = (goal_side == GOAL_SIDES.LEFT) ? BLUE_LEFT_GOAL_X : BLUE_RIGHT_GOAL_X;
+            GOAL_Y = (goal_side == GOAL_SIDES.LEFT) ? BLUE_LEFT_GOAL_Y : BLUE_RIGHT_GOAL_Y;
         }
-        double deltaX = GOAL_X_MM - robotXMM;
-        double deltaY = GOAL_Y_MM - robotYMM;
+
+        SHOOTER_ANGLE = (shooterMode == ShooterMode.POLLEN) ? POLLEN_SHOOTER_ANGLE : NECTAR_SHOOTER_ANGLE;
+        
+        double deltaX = GOAL_X - robotXMM;
+        double deltaY = GOAL_Y - robotYMM;
         double horizontalDistance = Math.hypot(deltaX, deltaY);
 
-        double heightDifference = GOAL_Z_MM - SHOOTER_HEIGHT_MM;
+        double heightDifference = GOAL_Z - SHOOTER_HEIGHT;
 
-        double angleRad = Math.toRadians(SHOOTER_ANGLE_DEG);
+        double angleRad = Math.toRadians(SHOOTER_ANGLE);
         double cosTheta = Math.cos(angleRad);
         double tanTheta = Math.tan(angleRad);
 
@@ -157,10 +163,10 @@ public class Shooter extends SubsystemBase {
             return 0.0;
         }
 
-        double v0Squared = (GRAVITY_MM * Math.pow(horizontalDistance, 2)) / denominator;
+        double v0Squared = (GRAVITY * Math.pow(horizontalDistance, 2)) / denominator;
         double v0 = Math.sqrt(v0Squared); // Velocity in mm/s
 
-        double rawRpm = (v0 * 60.0) / (2 * Math.PI * WHEEL_RADIUS_MM);
+        double rawRpm = (v0 * 60.0) / (2 * Math.PI * WHEEL_RADIUS);
 
         return rawRpm / pieceEfficiency;
     }
