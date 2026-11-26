@@ -15,7 +15,6 @@ public class CRTest extends CommandOpMode {
     @Override
     public void initialize() {
         backTurret = new Turret(this.hardwareMap, "backTurret", "backTurretEncoder");
-
         gamepad = new GamepadEx(this.gamepad1);
         gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(backTurret.trackPositionCommand(new Pose(0,0)));
         gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(backTurret.addTgtCommand(10));
