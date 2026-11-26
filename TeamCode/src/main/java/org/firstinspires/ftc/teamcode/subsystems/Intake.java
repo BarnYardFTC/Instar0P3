@@ -4,8 +4,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.Command;
+import com.seattlesolvers.solverslib.command.ConditionalCommand;
 import com.seattlesolvers.solverslib.command.InstantCommand;
 import com.seattlesolvers.solverslib.command.RunCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -31,10 +33,7 @@ public class Intake extends SubsystemBase {
     }
 
     public Command stopIntakeOppALience(boolean isDangerous){
-        if (isDangerous){
-            return disableCommand();
-        }
-        return enableCommand();
+        return new ConditionalCommand(disableCommand(),enableCommand(),() -> isDangerous );
     }
     public Command reverseCommand(){
         return new InstantCommand(() -> intakeMotor.setPower(-1), this);

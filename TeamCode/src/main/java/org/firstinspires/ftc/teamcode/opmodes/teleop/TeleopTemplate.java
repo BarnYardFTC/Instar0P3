@@ -29,7 +29,7 @@ public class TeleopTemplate {
         if(isFieldCentric) robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
         else robot.drive.setDefaultCommand(robot.drive.followPollenCommand());
         // Binds
-        triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Intake", robot.intake.stopIntakeOppALience(robot.limelight.oppositeColorStop(Limelight.Colors.RED, robot.limelight.getPythonResults())), robot.intake.disableCommand());
+        triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Intake", robot.intake.stopIntakeOppALience(robot.limelight.oppositeColorStop(Limelight.Colors.RED, robot.limelight.getPythonResults())),robot.intake.stopIntakeOppALience(robot.limelight.oppositeColorStop(Limelight.Colors.RED, robot.limelight.getPythonResults())));
         triggerBind(GamepadKeys.Trigger.LEFT_TRIGGER, "Transfer", robot.transfer.enableCommand(), robot.transfer.disableCommand());
         holdBind(GamepadKeys.Button.LEFT_STICK_BUTTON, "Change speed", robot.drive.setSlowModeCommand(), robot.drive.setFastModeCommand());
         toggleBind(GamepadKeys.Button.DPAD_UP, "Gate",

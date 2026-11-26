@@ -130,7 +130,7 @@ public class Limelight extends SubsystemBase {
     public boolean oppositeColorStop(Colors color, ArrayList<double[]> pythonOutputs){
         ArrayList<double[]> oppositeTargets = new ArrayList<>();
         oppositeTargets = detectOppositeColor(color,pythonOutputs);
-        double distanceLimit = 20;
+        double distanceLimit = 9;
         for (double[] target:oppositeTargets) {
             if (target[2] >= distanceLimit){
                 return true;
