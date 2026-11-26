@@ -25,7 +25,7 @@ public class ParkAndPreloadLeft extends LinearOpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(61.3666, 132.8635, 90);
+    private final Pose start = poseFactory.of(61.3666, 132.8635, 270);
     private final Pose point1 = poseFactory.of(33.5414, 111.6258, 270);
     private final Pose point2 = poseFactory.of(20.4826, 32.1997, 270);
     private final Pose point3 = poseFactory.of(9.2127, 30.7686, 270);
