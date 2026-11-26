@@ -21,7 +21,10 @@ import org.firstinspires.ftc.teamcode.general.BarnRobot;
 import org.opencv.core.Mat;
 
 import java.io.ByteArrayInputStream;
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.LoggingPermission;
 
 import kotlin.collections.UCollectionsKt;
 
@@ -33,8 +36,10 @@ public class Limelight extends SubsystemBase {
     public int currentPipeline = 4;
     private double targetSizeCoefficient = 1.677;
     public boolean targetAchieved = false;
+    public enum Colors {RED, BLUE}
 
-    double[] pythonOutputs;
+    ArrayList<double[]> pythonOutputs = new ArrayList<>();
+    double[] pythonOutput;
 
     private List<LLResultTypes.ColorResult> colorResults;
     public Limelight(HardwareMap hwMap, String limelightName) {
@@ -89,10 +94,34 @@ public class Limelight extends SubsystemBase {
      * @return array of this 4 numbers for every target on the screen
      * PIPELINE WILL WORK ONLY WITH FULL LIGHT ON
      */
-    public double[] getPythonResults(){
-        pythonOutputs = latestResult.getPythonOutput();
-        return pythonOutputs != null && pythonOutputs.length > 0 ? pythonOutputs : new double[]{0.0};
+    public void getPythonResults(){
+        pythonOutput = latestResult.getPythonOutput();
+        if (pythonOutput != null && pythonOutput.length > 0) {
+            pythonOutputs.add(pythonOutput);
+        }
     }
+
+    public ArrayList<double[]> detectOppositeColor(Colors color, ArrayList<double[]> pythonOutputs){
+        ArrayList<double[]> oppositeTargets = new ArrayList<>();
+        switch (color){
+            case BLUE:
+                for (double[] target : pythonOutputs) {
+                    if (target[3] == 3){
+                        oppositeTargets.add(target);
+                    }
+                }
+                break;
+            case RED:
+                for (double[] target : pythonOutputs) {
+                    if (target[3] == 2){
+                        oppositeTargets.add(target);
+                    }
+                }
+                break;
+        }
+        return oppositeTargets;
+    }
+
 
     @Override
     public void periodic() {
