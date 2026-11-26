@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.graphics.Color;
 import android.sax.StartElementListener;
 
 import com.pedropathing.api.PoseFactory;
@@ -34,11 +35,10 @@ public class Limelight extends SubsystemBase {
     public boolean isData = false;
     public boolean isValid = false;
     public int currentPipeline = 4;
-    private double targetSizeCoefficient = 1.677;
+    private final double targetSizeCoefficient = 1.677;
     public boolean targetAchieved = false;
     public enum Colors {RED, BLUE}
 
-    ArrayList<double[]> pythonOutputs = new ArrayList<>();
     double[] pythonOutput;
 
     private List<LLResultTypes.ColorResult> colorResults;
@@ -94,11 +94,16 @@ public class Limelight extends SubsystemBase {
      * @return array of this 4 numbers for every target on the screen
      * PIPELINE WILL WORK ONLY WITH FULL LIGHT ON
      */
-    public void getPythonResults(){
+    public ArrayList<double[]> getPythonResults(){
+        ArrayList<double[]> pythonOutputs = new ArrayList<>();
+
         pythonOutput = latestResult.getPythonOutput();
+
         if (pythonOutput != null && pythonOutput.length > 0) {
+
             pythonOutputs.add(pythonOutput);
         }
+        return pythonOutputs;
     }
 
     public ArrayList<double[]> detectOppositeColor(Colors color, ArrayList<double[]> pythonOutputs){
@@ -121,6 +126,20 @@ public class Limelight extends SubsystemBase {
         }
         return oppositeTargets;
     }
+
+    public boolean oppositeColorStop(Colors color, ArrayList<double[]> pythonOutputs){
+        ArrayList<double[]> oppositeTargets = new ArrayList<>();
+        oppositeTargets = detectOppositeColor(color,pythonOutputs);
+        double distanceLimit = 20;
+        for (double[] target:oppositeTargets) {
+            if (target[2] >= distanceLimit){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
 
     @Override

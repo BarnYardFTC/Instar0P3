@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.seattlesolvers.solverslib.command.Command;
 import com.seattlesolvers.solverslib.command.ParallelCommandGroup;
@@ -9,15 +11,16 @@ import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.photon.PhotonCore;
 
 import org.firstinspires.ftc.teamcode.general.BarnRobot;
+import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import java.util.ArrayList;
 
 public class TeleopTemplate {
 
-    private static ArrayList<String> binds = new ArrayList<>();
+    private static final ArrayList<String> binds = new ArrayList<>();
     private static final BarnRobot robot = BarnRobot.getInstance();
-    public enum ALLIANCE_COLOR {RED, BLUE};
+    public enum ALLIANCE_COLOR {RED, BLUE}
 
 
     public static void apply(OpMode opMode, boolean isFieldCentric, ALLIANCE_COLOR alliance) {
@@ -26,7 +29,7 @@ public class TeleopTemplate {
         if(isFieldCentric) robot.drive.setDefaultCommand(robot.drive.fieldCentricCommand());
         else robot.drive.setDefaultCommand(robot.drive.followPollenCommand());
         // Binds
-        triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Intake", robot.intake.enableCommand(), robot.intake.disableCommand());
+        triggerBind(GamepadKeys.Trigger.RIGHT_TRIGGER, "Intake", robot.intake.stopIntakeOppALience(robot.limelight.oppositeColorStop(Limelight.Colors.RED, robot.limelight.getPythonResults())), robot.intake.disableCommand());
         triggerBind(GamepadKeys.Trigger.LEFT_TRIGGER, "Transfer", robot.transfer.enableCommand(), robot.transfer.disableCommand());
         holdBind(GamepadKeys.Button.LEFT_STICK_BUTTON, "Change speed", robot.drive.setSlowModeCommand(), robot.drive.setFastModeCommand());
         toggleBind(GamepadKeys.Button.DPAD_UP, "Gate",

@@ -30,6 +30,12 @@ public class Intake extends SubsystemBase {
         return new InstantCommand(() -> intakeMotor.setPower(0), this);
     }
 
+    public Command stopIntakeOppALience(boolean isDangerous){
+        if (isDangerous){
+            return disableCommand();
+        }
+        return enableCommand();
+    }
     public Command reverseCommand(){
         return new InstantCommand(() -> intakeMotor.setPower(-1), this);
     }
