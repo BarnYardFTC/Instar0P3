@@ -1,56 +1,37 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoTemplate.*;
-
+import static com.pedropathing.api.Paths.line;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.pedropathing.ivy.CommandBuilder;
-import com.seattlesolvers.solverslib.command.CommandOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.general.BarnRobot;
 import org.firstinspires.ftc.teamcode.general.Constants;
 
-import com.pedropathing.ivy.Scheduler;
-import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-
 @Autonomous(name="Auto test", group="Test")
-public class TestAuto extends CommandOpMode {
-    BarnRobot robot;
-    Follower follower;
+public class TestAuto extends LinearOpMode {
+    private Follower follower;
 
     @Override
-    public void initialize() {
-        robot = BarnRobot.getInstance();
-        robot.init(this);
-        Scheduler.reset();
+    public void runOpMode() {
         follower = Constants.create(hardwareMap);
-        AutoTemplate.pathBuilder(Alliance.BLUE);
-        follower.setPose(START_POSE);
-//        robot.shooter.operateShooter();
-//        robot.intake.enableCommand();
-        Scheduler.schedule(autoRoutine());
-    }
 
-    @Override
-    public void run() {
-        robot.periodic();
+        follower.setPose(AutoTemplate.getStartPose());
         follower.update();
-        super.run();
-    }
 
-    @Override
-    public void end() {
-        super.end();
-//        Drivetrain.setPassPose(robot.drive.follower.getPose());
-    }
+        waitForStart();
 
-    private CommandBuilder autoRoutine() {
-        return sequential(
-                follow(follower, goTestpose())
-        );
-    }
+        follower.follow(AutoTemplate.goCurve());
 
+        while (opModeIsActive()) {
+            follower.update();
+
+            telemetry.addData("x", follower.pose().x());
+            telemetry.addData("y", follower.pose().y());
+            telemetry.addData("heading", follower.pose().heading());
+            telemetry.update();
+        }
+    }
 }
